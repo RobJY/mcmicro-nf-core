@@ -5,23 +5,26 @@
 */
 
 import groovy.io.FileType
+import groovy.json.JsonSlurper
 import nextflow.Nextflow
 
-include { paramsSummaryMap       } from 'plugin/nf-validation'
-include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_mcmicro_pipeline'
-include { MULTIQC                } from '../modules/nf-core/multiqc/main'
+include { paramsSummaryMap          } from 'plugin/nf-validation'
+include { paramsSummaryMultiqc      } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML    } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText    } from '../subworkflows/local/utils_nfcore_mcmicro_pipeline'
+include { MULTIQC                   } from '../modules/nf-core/multiqc/main'
 
-include { INPUT_CHECK } from '../subworkflows/local/input_check'
+include { INPUT_CHECK               } from '../subworkflows/local/input_check'
 
-include { BASICPY } from '../modules/nf-core/basicpy/main'
-include { ASHLAR } from '../modules/nf-core/ashlar/main'
-include { BACKSUB } from '../modules/nf-core/backsub/main'
-include { CELLPOSE } from '../modules/nf-core/cellpose/main'
-include { DEEPCELL_MESMER } from '../modules/nf-core/deepcell/mesmer/main'
-include { MCQUANT } from '../modules/nf-core/mcquant/main'
-include { SCIMAP_MCMICRO } from '../modules/nf-core/scimap/mcmicro/main'
+include { BASICPY                   } from '../modules/nf-core/basicpy/main'
+include { ASHLAR                    } from '../modules/nf-core/ashlar/main'
+include { BACKSUB                   } from '../modules/nf-core/backsub/main'
+include { CELLPOSE                  } from '../modules/nf-core/cellpose/main'
+include { DEEPCELL_MESMER           } from '../modules/nf-core/deepcell/mesmer/main'
+include { MCQUANT                   } from '../modules/nf-core/mcquant/main'
+include { SCIMAP_MCMICRO            } from '../modules/nf-core/scimap/mcmicro/main'
+
+input_cycle_schema = "${projectDir}/assets/schema_input_cycle.json"
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -91,8 +94,9 @@ workflow MCMICRO {
 
         } else if(params.illumination == 'manual') {
 
-            dfp_index = sample_sheet_index_map["dfp"]
-            ffp_index = sample_sheet_index_map["ffp"]
+            sample_header = sheet_keys(input_cycle_schema).toList()
+            dfp_index = sample_header.indexOf('dfp')
+            ffp_index = sample_header.indexOf('ffp')
 
             if (input_type == "cycle") {
                 samplesheet = "input_cycle"
@@ -178,6 +182,18 @@ workflow MCMICRO {
     emit:
     multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
+}
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    FUNCTIONS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+def sheet_keys(path_marker_schema) {
+    def inputFile = new File(path_marker_schema)
+    def InputJSON = new JsonSlurper().parseText(inputFile.text)
+    return InputJSON['items']['properties'].keySet()
 }
 
 /*
