@@ -214,7 +214,6 @@ def validateInputParameters() {
 
 def validateInputMarkersheet( sheet_data ) {
 
-    /*
     marker_map = [:]
     ctr = 0
     sheet_data.each { curr_list ->
@@ -267,7 +266,6 @@ def validateInputMarkersheet( sheet_data ) {
         }
         prev_channel = curr_channel
     }
-    */
 
     return sheet_data
 }
