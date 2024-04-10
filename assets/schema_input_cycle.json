@@ -22,6 +22,7 @@
             },
             "image_tiles": {
                 "type": "string",
+                "format": "file-path",
                 "pattern": "^\\S+$",
                 "exists": true,
                 "errorMessage": "Need to provide a path to a directory containing image files"

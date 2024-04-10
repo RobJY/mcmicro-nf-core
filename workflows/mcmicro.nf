@@ -56,7 +56,7 @@ workflow MCMICRO {
 
             ch_samplesheet
                 .transpose()
-                .map { [[it[1].split('/')[-1][0..-5],it[0]], it[1]] }
+                .map { [[it[1].toString().split('/')[-1][0..-5],it[0]], it[1]] }
                 .set { ashlar_input_keyed }
 
                 ch_samplesheet

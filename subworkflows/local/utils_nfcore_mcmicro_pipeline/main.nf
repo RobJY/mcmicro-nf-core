@@ -13,6 +13,7 @@ import groovy.json.JsonSlurper
 
 markersheet_schema = "${projectDir}/assets/schema_marker.json"
 input_cycle_schema = "${projectDir}/assets/schema_input_cycle.json"
+input_sample_schema = "${projectDir}/assets/schema_input_sample.json"
 
 include { UTILS_NFVALIDATION_PLUGIN } from '../../nf-core/utils_nfvalidation_plugin'
 include { paramsSummaryMap          } from 'plugin/nf-validation'
@@ -90,6 +91,7 @@ workflow PIPELINE_INITIALISATION {
     def input_type
 
     if (input_sample) {
+        input_type = "sample"
         sample_sheet_index_map = make_sample_sheet_index_map(input_sample)
         ch_samplesheet = Channel.fromSamplesheet(
             "input_sample",
@@ -97,7 +99,11 @@ workflow PIPELINE_INITIALISATION {
         )
         .tap { ch_raw_samplesheet }
         .map { make_ashlar_input_sample(it, sample_sheet_index_map) }
+
+        sample_header = sheet_keys(input_sample_schema)
+
     } else if (input_cycle) {
+        input_type = "cycle"
         sample_sheet_index_map = make_sample_sheet_index_map(input_cycle)
         ch_samplesheet = Channel.fromSamplesheet(
             "input_cycle",
@@ -106,14 +112,18 @@ workflow PIPELINE_INITIALISATION {
         .tap { ch_raw_samplesheet }
         .map { [[id:it[0]], it[3]] }
         .groupTuple()
+
+        sample_header = sheet_keys(input_cycle_schema)
+
     } else {
         error "Either input_sample or input_cycle is required."
     }
 
-    ch_raw_samplesheet
-        .map {
-            validateInputSamplesheet(it)
-        }
+    Channel.from(sample_header)
+        .toList()
+        .concat(ch_raw_samplesheet)
+        .toList()
+        .map { validateInputSamplesheet(it, input_type) }
 
     Channel.fromSamplesheet(
         "marker_sheet",
@@ -276,8 +286,16 @@ def sheet_keys(path_marker_schema) {
     return InputJSON['items']['properties'].keySet()
 }
 
-def validateInputSamplesheet ( sheet_data ) {
+def validateInputSamplesheet ( sheet_data, mode ) {
     // TODO: Add sample sheet validation.
+    print(mode)
+    print(sheet_data)
+
+
+    if (mode == "sample") {
+        // check for the existence of all files under cycle_image column in the image_directory
+    }
+
     return sheet_data
 }
 
