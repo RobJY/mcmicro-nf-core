@@ -12,6 +12,7 @@ import groovy.io.FileType
 import groovy.json.JsonSlurper
 
 markersheet_schema = "${projectDir}/assets/schema_marker.json"
+input_cycle_schema = "${projectDir}/assets/schema_input_cycle.json"
 
 include { UTILS_NFVALIDATION_PLUGIN } from '../../nf-core/utils_nfvalidation_plugin'
 include { paramsSummaryMap          } from 'plugin/nf-validation'
@@ -94,6 +95,7 @@ workflow PIPELINE_INITIALISATION {
             "input_sample",
             skip_duplicate_check: false
         )
+        .tap { ch_raw_samplesheet }
         .map { make_ashlar_input_sample(it, sample_sheet_index_map) }
     } else if (input_cycle) {
         sample_sheet_index_map = make_sample_sheet_index_map(input_cycle)
@@ -101,17 +103,17 @@ workflow PIPELINE_INITIALISATION {
             "input_cycle",
             skip_duplicate_check: false
         )
+        .tap { ch_raw_samplesheet }
         .map { [[id:it[0]], it[3]] }
         .groupTuple()
     } else {
         error "Either input_sample or input_cycle is required."
     }
 
-    ch_samplesheet
+    ch_raw_samplesheet
         .map {
             validateInputSamplesheet(it)
         }
-        .set { ch_samplesheet }
 
     Channel.fromSamplesheet(
         "marker_sheet",
@@ -124,7 +126,28 @@ workflow PIPELINE_INITIALISATION {
         .toList()
         .concat(markersheet_data)
         .toList()
+        //.tap { full_marker_data }
         .map{ validateInputMarkersheet(it) }
+
+    // TODO: fix: tap above causes workflow to hang at the end
+    //       so I'm making full_marker_data again here
+    Channel.from(markersheet_header)
+        .toList()
+        .concat(markersheet_data)
+        .toList()
+        .set { full_marker_data }
+
+    Channel.of(["divider"])
+        .set { divider }
+
+    sample_cycle_header = sheet_keys(input_cycle_schema)
+    Channel.from(sample_cycle_header)
+        .toList()
+        .concat(ch_raw_samplesheet)
+        .concat(divider)
+        .concat(full_marker_data)
+        .toList()
+        .map { validateInputSamplesheetMarkersheet(it) }
 
     emit:
     samplesheet = ch_samplesheet
@@ -191,6 +214,7 @@ def validateInputParameters() {
 
 def validateInputMarkersheet( sheet_data ) {
 
+    /*
     marker_map = [:]
     ctr = 0
     sheet_data.each { curr_list ->
@@ -243,18 +267,57 @@ def validateInputMarkersheet( sheet_data ) {
         }
         prev_channel = curr_channel
     }
+    */
+
+    return sheet_data
 }
 
 def sheet_keys(path_marker_schema) {
     def inputFile = new File(path_marker_schema)
     def InputJSON = new JsonSlurper().parseText(inputFile.text)
-    //InputJSON.each{ println it }
     return InputJSON['items']['properties'].keySet()
 }
 
-def validateInputSamplesheet(input) {
+def validateInputSamplesheet ( sheet_data ) {
     // TODO: Add sample sheet validation.
-    return input
+    return sheet_data
+}
+
+def validateInputSamplesheetMarkersheet( sheet_data ) {
+
+    sample_cycle_list = []
+    marker_cycle_list = []
+    marker_mode = false
+    ctr_list = 0
+    idx_cycle_number = -1
+    sheet_data.each { curr_list_cvsams ->
+        if ( marker_mode) {
+            curr_list_cvsams.each { curr_sublist_cvsams ->
+                if(ctr_list == 0){
+                    idx_cycle_number = curr_list_cvsams.indexOf('cycle_number')
+                    ctr_list++
+                } else {
+                    marker_cycle_list.add(curr_sublist_cvsams[1])
+                }
+            }
+        } else {
+            if (curr_list_cvsams == ["divider"]) {
+                marker_mode = true
+                ctr_list = 0
+            } else {
+                if (ctr_list == 0) {
+                    idx_cycle_number = curr_list_cvsams.indexOf('cycle_number')
+                    ctr_list++
+                } else {
+                    sample_cycle_list.add(curr_list_cvsams[idx_cycle_number])
+                }
+            }
+        }
+    }
+
+    if (marker_cycle_list.unique() != sample_cycle_list.unique() ) {
+        throw new Exception("Error: cycle_number in sample and marker sheets must match 1:1!")
+    }
 }
 
 def make_sample_sheet_index_map(String sample_sheet_path) {
