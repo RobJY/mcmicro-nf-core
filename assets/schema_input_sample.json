@@ -15,6 +15,7 @@
             "image_directory": {
                 "type": "string",
                 "pattern": "^\\S+$",
+                "exists": true,
                 "errorMessage": "Need to provide a path to a directory containing image files"
             },
             "cycle_images": {
@@ -25,11 +26,13 @@
             "dfp": {
                 "type": "string",
                 "pattern": "^\\S+$",
+                "exists": true,
                 "errorMessage": "provide path to dfp illumination correction file(s) if illumination parameter is manual"
             },
             "ffp": {
                 "type": "string",
                 "pattern": "^\\S+$",
+                "exists": true,
                 "errorMessage": "provide path to ffp illumination correction file(s) if illumination parameter is manual"
             }
         },

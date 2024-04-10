@@ -23,16 +23,19 @@
             "image_tiles": {
                 "type": "string",
                 "pattern": "^\\S+$",
+                "exists": true,
                 "errorMessage": "Need to provide a path to a directory containing image files"
             },
             "dfp": {
                 "type": "string",
                 "pattern": "^\\S+$",
+                "exists": true,
                 "errorMessage": "provide path to dfp illumination correction file(s) if illumination parameter is manual"
             },
             "ffp": {
                 "type": "string",
                 "pattern": "^\\S+$",
+                "exists": true,
                 "errorMessage": "provide path to ffp illumination correction file(s) if illumination parameter is manual"
             }
         },
