@@ -370,7 +370,7 @@ def make_ashlar_input_sample(ArrayList sample_sheet_row, Map sample_sheet_index_
     } else {
         // TODO: remove this option or allow it to grab all files when no column in the samplesheet?
         cycle_images = []
-        def image_dir = new File(sample_sheet_row[image_dir_path_index])
+        def image_dir = sample_sheet_row[image_dir_path_index]
         image_dir.eachFileRecurse (FileType.FILES) {
             if(it.toString().endsWith(".ome.tif")){
                 cycle_images << file(it)
