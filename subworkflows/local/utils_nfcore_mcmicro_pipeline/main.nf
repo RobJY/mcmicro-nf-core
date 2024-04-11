@@ -157,7 +157,7 @@ workflow PIPELINE_INITIALISATION {
         .concat(divider)
         .concat(full_marker_data)
         .toList()
-        .map { validateInputSamplesheetMarkersheet(it) }
+        .map { validateInputSamplesheetMarkersheet(it, input_type) }
 
     emit:
     samplesheet = ch_samplesheet
@@ -299,40 +299,44 @@ def validateInputSamplesheet ( sheet_data, mode ) {
     return sheet_data
 }
 
-def validateInputSamplesheetMarkersheet( sheet_data ) {
+def validateInputSamplesheetMarkersheet( sheet_data, mode ) {
 
-    sample_cycle_list = []
-    marker_cycle_list = []
-    marker_mode = false
-    ctr_list = 0
-    idx_cycle_number = -1
-    sheet_data.each { curr_list_cvsams ->
-        if ( marker_mode) {
-            curr_list_cvsams.each { curr_sublist_cvsams ->
-                if(ctr_list == 0){
-                    idx_cycle_number = curr_list_cvsams.indexOf('cycle_number')
-                    ctr_list++
-                } else {
-                    marker_cycle_list.add(curr_sublist_cvsams[1])
+    if (mode == 'cycle' ) {
+        sample_cycle_list = []
+        marker_cycle_list = []
+        marker_mode = false
+        ctr_list = 0
+        idx_cycle_number = -1
+        sheet_data.each { curr_list_cvsams ->
+            if ( marker_mode) {
+                curr_list_cvsams.each { curr_sublist_cvsams ->
+                    if(ctr_list == 0){
+                        idx_cycle_number = curr_list_cvsams.indexOf('cycle_number')
+                        ctr_list++
+                    } else {
+                        marker_cycle_list.add(curr_sublist_cvsams[1])
+                    }
                 }
-            }
-        } else {
-            if (curr_list_cvsams == ["divider"]) {
-                marker_mode = true
-                ctr_list = 0
             } else {
-                if (ctr_list == 0) {
-                    idx_cycle_number = curr_list_cvsams.indexOf('cycle_number')
-                    ctr_list++
+                if (curr_list_cvsams == ["divider"]) {
+                    marker_mode = true
+                    ctr_list = 0
                 } else {
-                    sample_cycle_list.add(curr_list_cvsams[idx_cycle_number])
+                    if (ctr_list == 0) {
+                        idx_cycle_number = curr_list_cvsams.indexOf('cycle_number')
+                        ctr_list++
+                    } else {
+                        sample_cycle_list.add(curr_list_cvsams[idx_cycle_number])
+                    }
                 }
             }
         }
-    }
 
-    if (marker_cycle_list.unique() != sample_cycle_list.unique() ) {
-        throw new Exception("Error: cycle_number in sample and marker sheets must match 1:1!")
+        if (marker_cycle_list.unique() != sample_cycle_list.unique() ) {
+            throw new Exception("Error: cycle_number in sample and marker sheets must match 1:1!")
+        }
+    } else if ( mode == 'sample' ) {
+        // TODO: add validation for 1 row per sample samplesheet & markersheet correspondence
     }
 }
 

@@ -95,8 +95,8 @@ workflow MCMICRO {
         } else if(params.illumination == 'manual') {
 
             sample_header = sheet_keys(input_cycle_schema).toList()
-            dfp_index = sample_header.indexOf('dfp')
-            ffp_index = sample_header.indexOf('ffp')
+            dfp_index = sample_header.indexOf('dfp')-1
+            ffp_index = sample_header.indexOf('ffp')-1
 
             if (input_type == "cycle") {
                 samplesheet = "input_cycle"
