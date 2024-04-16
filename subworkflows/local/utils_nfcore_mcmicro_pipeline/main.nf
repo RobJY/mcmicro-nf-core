@@ -99,7 +99,7 @@ workflow PIPELINE_INITIALISATION {
         .tap { ch_raw_samplesheet }
         .map { make_ashlar_input_sample(it) }
 
-        sample_header = sheet_keys(input_sample_schema)
+        // sample_header = sheet_keys(input_sample_schema)
 
     } else if (input_cycle) {
         input_type = "cycle"
@@ -111,15 +111,21 @@ workflow PIPELINE_INITIALISATION {
         .map { [[id:it[0]], it[3]] }
         .groupTuple()
 
-        sample_header = sheet_keys(input_cycle_schema)
+        // sample_header = sheet_keys(input_cycle_schema)
 
     } else {
         error "Either input_sample or input_cycle is required."
     }
 
+    /*
     Channel.from(sample_header)
         .toList()
         .concat(ch_raw_samplesheet)
+        .toList()
+        .map { validateInputSamplesheet(it, input_type) }
+    */
+
+    ch_raw_samplesheet
         .toList()
         .map { validateInputSamplesheet(it, input_type) }
 
@@ -307,9 +313,8 @@ def validateInputSamplesheet ( sheet_data_VIS, mode_VIS ) {
 
     if (mode_VIS == "sample") {
         // check for the existence of all files under cycle_image column in the given image_directory
-        row_ctr_VIS = 0
         sheet_data_VIS.each { row_VIS ->
-            if (row_ctr_VIS > 0 && row_VIS[2] != []) {
+            if (row_VIS[2] != []) {
                 file_list_VIS = row_VIS[2].split(" ")
                 file_list_VIS.each { curr_file_VIS ->
                     File curr_path_VIS = new File(row_VIS[1].toString() + "/" + curr_file_VIS)
@@ -318,7 +323,6 @@ def validateInputSamplesheet ( sheet_data_VIS, mode_VIS ) {
                     }
                 }
             }
-            row_ctr_VIS++
         }
     }
 
@@ -366,13 +370,13 @@ def validateInputSamplesheetMarkersheet( sheet_data, mode ) {
     }
 }
 
-def make_ashlar_input_sample(ArrayList sample_sheet_row) {
-    if (sample_sheet_row[input_sheet_index("sample", "cycle_images")] != []) {
-        tmp_path = sample_sheet_row[image_dir_path_index]
+def make_ashlar_input_sample(ArrayList sample_sheet_row_MAIS) {
+    if (sample_sheet_row_MAIS[input_sheet_index("sample", "cycle_images")] != []) {
+        tmp_path = sample_sheet_row_MAIS[input_sheet_index("sample","image_directory")]
         if (tmp_path[-1] != "/") {
             tmp_path = "${tmp_path}/"
         }
-        cycle_images = sample_sheet_row[sample_sheet_index_map['cycle_images']].split(' ').collect{ "${tmp_path}${it}" }
+        cycle_images = sample_sheet_row_MAIS[input_sheet_index("sample", "cycle_images")].split(' ').collect{ "${tmp_path}${it}" }
         cycle_images.each{ file_path ->
             File file_test = new File(file_path)
             if (!file_test.exists()) {
@@ -382,7 +386,7 @@ def make_ashlar_input_sample(ArrayList sample_sheet_row) {
     } else {
         // TODO: remove this option or allow it to grab all files when no column in the samplesheet?
         cycle_images = []
-        def image_dir = sample_sheet_row[input_sheet_index("sample", "image_directory")]
+        def image_dir = sample_sheet_row_MAIS[input_sheet_index("sample", "image_directory")]
         image_dir.eachFileRecurse (FileType.FILES) {
             if(it.toString().endsWith(".ome.tif")){
                 cycle_images << file(it)
@@ -390,7 +394,7 @@ def make_ashlar_input_sample(ArrayList sample_sheet_row) {
         }
     }
 
-    ashlar_input = [[id:sample_sheet_row[input_sheet_index("sample", "sample")]], cycle_images]
+    ashlar_input = [[id:sample_sheet_row_MAIS[input_sheet_index("sample", "sample")]], cycle_images]
 
     return ashlar_input
 }
