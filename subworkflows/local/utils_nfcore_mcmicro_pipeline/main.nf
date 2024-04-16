@@ -92,19 +92,17 @@ workflow PIPELINE_INITIALISATION {
 
     if (input_sample) {
         input_type = "sample"
-        sample_sheet_index_map = make_sample_sheet_index_map(input_sample)
         ch_samplesheet = Channel.fromSamplesheet(
             "input_sample",
             skip_duplicate_check: false
         )
         .tap { ch_raw_samplesheet }
-        .map { make_ashlar_input_sample(it, sample_sheet_index_map) }
+        .map { make_ashlar_input_sample(it) }
 
         sample_header = sheet_keys(input_sample_schema)
 
     } else if (input_cycle) {
         input_type = "cycle"
-        sample_sheet_index_map = make_sample_sheet_index_map(input_cycle)
         ch_samplesheet = Channel.fromSamplesheet(
             "input_cycle",
             skip_duplicate_check: false
@@ -280,6 +278,24 @@ def validateInputMarkersheet( sheet_data ) {
     return sheet_data
 }
 
+// function that returns the index of a given column from a given sheet
+//   as defined in the schema file.
+//   (will need to be updated when the schema files change)
+def input_sheet_index(sheet_type, column_name) {
+    if (sheet_type == "sample") {
+        index_map = [sample: 0, image_directory: 1, cycle_images: 2, dfp: 3, ffp: 4]
+    } else if (sheet_type == "cycle") {
+        index_map = [sample: 0, cycle_number: 1, channel_count: 2, image_tiles: 3, dfp: 4, ffp: 5]
+    } else if (sheet_type == "marker") {
+        index_map = [channel_number: 0, cycle_number: 1, marker_name: 2, filter: 3,
+                        excitation_wavelength: 4, emission_wavelength: 5]
+    } else {
+        error("Error: bad sheet type: $sheet_type")
+    }
+
+    return index_map[column_name]
+}
+
 def sheet_keys(path_marker_schema) {
     def inputFile = new File(path_marker_schema)
     def InputJSON = new JsonSlurper().parseText(inputFile.text)
@@ -350,22 +366,8 @@ def validateInputSamplesheetMarkersheet( sheet_data, mode ) {
     }
 }
 
-def make_sample_sheet_index_map(String sample_sheet_path) {
-    def sample_sheet_index_map = [:]
-    def header
-    new File(sample_sheet_path).withReader { header_list = it.readLine().split(',') }
-    def ctr = 0
-    header_list.each { value ->
-        sample_sheet_index_map[value] = ctr
-        ctr = ctr + 1
-    }
-    return sample_sheet_index_map
-}
-
-def make_ashlar_input_sample(ArrayList sample_sheet_row, Map sample_sheet_index_map) {
-    sample_name_index = sample_sheet_index_map['sample']
-    image_dir_path_index = sample_sheet_index_map['image_directory']
-    if (sample_sheet_index_map.keySet().collect().contains("cycle_images")) {
+def make_ashlar_input_sample(ArrayList sample_sheet_row) {
+    if (sample_sheet_row[input_sheet_index("sample", "cycle_images")] != []) {
         tmp_path = sample_sheet_row[image_dir_path_index]
         if (tmp_path[-1] != "/") {
             tmp_path = "${tmp_path}/"
@@ -380,7 +382,7 @@ def make_ashlar_input_sample(ArrayList sample_sheet_row, Map sample_sheet_index_
     } else {
         // TODO: remove this option or allow it to grab all files when no column in the samplesheet?
         cycle_images = []
-        def image_dir = sample_sheet_row[image_dir_path_index]
+        def image_dir = sample_sheet_row[input_sheet_index("sample", "image_directory")]
         image_dir.eachFileRecurse (FileType.FILES) {
             if(it.toString().endsWith(".ome.tif")){
                 cycle_images << file(it)
@@ -388,15 +390,7 @@ def make_ashlar_input_sample(ArrayList sample_sheet_row, Map sample_sheet_index_
         }
     }
 
-    ashlar_input = [[id:sample_sheet_row[sample_name_index]], cycle_images]
-
-    return ashlar_input
-}
-
-def make_ashlar_input_cycle(ArrayList sample_sheet_row, Map sample_sheet_index_map) {
-    sample_name_index = sample_sheet_index_map['sample']
-    image_tiles_path_index = sample_sheet_index_map['image_tiles']
-    ashlar_input = [[id:sample_sheet_row[sample_name_index]], sample_sheet_row[image_tiles_path_index]]
+    ashlar_input = [[id:sample_sheet_row[input_sheet_index("sample", "sample")]], cycle_images]
 
     return ashlar_input
 }
