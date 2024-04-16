@@ -286,17 +286,27 @@ def sheet_keys(path_marker_schema) {
     return InputJSON['items']['properties'].keySet()
 }
 
-def validateInputSamplesheet ( sheet_data, mode ) {
+def validateInputSamplesheet ( sheet_data_VIS, mode_VIS ) {
     // TODO: Add sample sheet validation.
-    print(mode)
-    print(sheet_data)
 
-
-    if (mode == "sample") {
-        // check for the existence of all files under cycle_image column in the image_directory
+    if (mode_VIS == "sample") {
+        // check for the existence of all files under cycle_image column in the given image_directory
+        row_ctr_VIS = 0
+        sheet_data_VIS.each { row_VIS ->
+            if (row_ctr_VIS > 0 && row_VIS[2] != []) {
+                file_list_VIS = row_VIS[2].split(" ")
+                file_list_VIS.each { curr_file_VIS ->
+                    File curr_path_VIS = new File(row_VIS[1].toString() + "/" + curr_file_VIS)
+                    if (!curr_path_VIS.exists()) {
+                        error("Error: file in samplesheet not found: $curr_path_VIS")
+                    }
+                }
+            }
+            row_ctr_VIS++
+        }
     }
 
-    return sheet_data
+    return sheet_data_VIS
 }
 
 def validateInputSamplesheetMarkersheet( sheet_data, mode ) {
