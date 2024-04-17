@@ -195,15 +195,15 @@ def validateInputParameters() {
 
 def validateInputMarkersheet( sheet_data ) {
 
-    idx_marker_name = input_sheet_index("marker", "marker_name")
-    idx_channel_number = input_sheet_index("marker", "channel_number")
-    idx_cycle_number = input_sheet_index("marker", "cycle_number")
-    marker_name_list = []
-    channel_number_list = []
-    cycle_number_list = []
+    def idx_marker_name = input_sheet_index("marker", "marker_name")
+    def idx_channel_number = input_sheet_index("marker", "channel_number")
+    def idx_cycle_number = input_sheet_index("marker", "cycle_number")
+    def marker_name_list = []
+    def channel_number_list = []
+    def cycle_number_list = []
 
     sheet_data.each { curr_list ->
-        idx = 0
+        def idx = 0
         curr_list.each { curr_val ->
             if (idx == idx_marker_name) {
                 marker_name_list.add(curr_val)
@@ -218,32 +218,32 @@ def validateInputMarkersheet( sheet_data ) {
 
     // uniqueness of marker name in marker sheet
     if ( marker_name_list.size() != marker_name_list.unique( false ).size() ) {
-        throw new Exception("Error: duplicate marker name found in marker sheet!")
+        error("Error: duplicate marker name found in marker sheet!")
     }
 
     // uniqueness of (channel, cycle) tuple in marker sheet
     test_tuples = [channel_number_list, cycle_number_list].transpose()
     if ( test_tuples.size() != test_tuples.unique( false ).size() ) {
-        throw new Exception("Error: duplicate (channel,cycle) pair")
+        error("Error: duplicate (channel,cycle) pair")
     }
 
     // cycle and channel are 1-based so 0 should throw an exception
     if (channel_number_list.stream().anyMatch { it.toInteger() < 1 }) {
-        throw new Exception("Error: channel_number must be >= 1")
+        error("Error: channel_number must be >= 1")
     }
     if (cycle_number_list.stream().anyMatch { it.toInteger() < 1 }) {
-        throw new Exception("Error: cycle_number must be >= 1")
+        error("Error: cycle_number must be >= 1")
     }
 
     // cycle and channel cannot skip values and must be in order
-    prev_cycle = cycle_number_list[0]
+    def prev_cycle = cycle_number_list[0]
     cycle_number_list.each { curr_cycle ->
         if ( (curr_cycle.toInteger() != prev_cycle.toInteger() ) && (curr_cycle.toInteger() != prev_cycle.toInteger() + 1) ) {
-            throw new Exception("Error: cycle_number cannot skip values and must be in order!")
+            error("Error: cycle_number cannot skip values and must be in order!")
         }
         prev_cycle = curr_cycle
     }
-    prev_channel = channel_number_list[0]
+    def prev_channel = channel_number_list[0]
     channel_number_list.each { curr_channel ->
         if ( (curr_channel.toInteger() != prev_channel.toInteger() ) && (curr_channel.toInteger() != (prev_channel.toInteger() + 1)) ) {
             throw new Exception("Error: channel_number cannot skip values and must be in order!")
@@ -327,13 +327,16 @@ def validateInputSamplesheetMarkersheet( sheet_data, mode ) {
 def make_ashlar_input_sample(sample_sheet_row) {
 
     def cycle_images = []
+    def index_sample_cycle_images = input_sheet_index("sample", "cycle_images")
+    def index_sample_image_directory = input_sheet_index("sample","image_directory")
+    def index_sample_sample = input_sheet_index("sample", "sample")
 
-    if (sample_sheet_row[input_sheet_index("sample", "cycle_images")] != []) {
-        def tmp_path = sample_sheet_row[input_sheet_index("sample","image_directory")]
+    if (sample_sheet_row[index_sample_cycle_images] != []) {
+        def tmp_path = sample_sheet_row[index_sample_image_directory]
         if (tmp_path[-1] != "/") {
             tmp_path = "${tmp_path}/"
         }
-        cycle_images = sample_sheet_row[input_sheet_index("sample", "cycle_images")].split(' ').collect{ "${tmp_path}${it}" }
+        cycle_images = sample_sheet_row[index_sample_cycle_images].split(' ').collect{ "${tmp_path}${it}" }
         cycle_images.each{ file_path ->
             def file_test = new File(file_path)
             if (!file_test.exists()) {
@@ -342,7 +345,7 @@ def make_ashlar_input_sample(sample_sheet_row) {
         }
     } else {
         // TODO: remove this option or allow it to grab all files when no column in the samplesheet?
-        def image_dir = sample_sheet_row[input_sheet_index("sample", "image_directory")]
+        def image_dir = sample_sheet_row[index_sample_image_directory]
         image_dir.eachFileRecurse (FileType.FILES) {
             if(it.toString().endsWith(".ome.tif")){
                 cycle_images << file(it)
@@ -350,7 +353,7 @@ def make_ashlar_input_sample(sample_sheet_row) {
         }
     }
 
-    return [[id:sample_sheet_row[input_sheet_index("sample", "sample")]], cycle_images]
+    return [[id:sample_sheet_row[index_sample_sample]], cycle_images]
 }
 
 //
