@@ -257,7 +257,7 @@ def validateInputMarkersheet( sheet_data ) {
 // function that returns the index of a given column from a given sheet
 //   as defined in the schema file.
 //   (will need to be updated when the schema files change)
-def input_sheet_index(sheet_type, column_name) {
+def input_sheet_index( sheet_type, column_name ) {
     if (sheet_type == "sample") {
         index_map = [sample: 0, image_directory: 1, cycle_images: 2, dfp: 3, ffp: 4]
     } else if (sheet_type == "cycle") {
@@ -278,7 +278,7 @@ def validateInputSamplesheetRow ( row, mode ) {
     if (mode == "sample") {
         // check for the existence of all files under cycle_image column in the given image_directory
         if (row.size() >= 3 && row[2] != []) {
-            file_list = row[2].split(" ")
+            def file_list = row[2].split(" ")
             file_list.each { curr_file ->
                 def curr_path = new File(row[1].toString() + "/" + curr_file)
                 if (!curr_path.exists()) {
@@ -291,7 +291,7 @@ def validateInputSamplesheetRow ( row, mode ) {
     return row
 }
 
-def validateInputSamplesheetMarkersheet( sheet_data, mode ) {
+def validateInputSamplesheetMarkersheet ( sheet_data, mode ) {
     if (mode == 'cycle' ) {
         def sample_cycle_list = []
         def marker_cycle_list = []
@@ -324,7 +324,7 @@ def validateInputSamplesheetMarkersheet( sheet_data, mode ) {
     }
 }
 
-def make_ashlar_input_sample(sample_sheet_row) {
+def make_ashlar_input_sample( sample_sheet_row ) {
 
     def cycle_images = []
     def index_sample_cycle_images = input_sheet_index("sample", "cycle_images")
@@ -385,7 +385,7 @@ def toolBibliographyText() {
     return reference_text
 }
 
-def methodsDescriptionText(mqc_methods_yaml) {
+def methodsDescriptionText( mqc_methods_yaml ) {
     // Convert  to a named map so can be used as with familar NXF ${workflow} variable syntax in the MultiQC YML file
     def meta = [:]
     meta.workflow = workflow.toMap()
