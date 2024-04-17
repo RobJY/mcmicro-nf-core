@@ -97,9 +97,8 @@ workflow PIPELINE_INITIALISATION {
             skip_duplicate_check: false
         )
         .tap { ch_raw_samplesheet }
+        .map { validateInputSamplesheetRow(it, input_type) }
         .map { make_ashlar_input_sample(it) }
-
-        // sample_header = sheet_keys(input_sample_schema)
 
     } else if (input_cycle) {
         input_type = "cycle"
@@ -108,26 +107,13 @@ workflow PIPELINE_INITIALISATION {
             skip_duplicate_check: false
         )
         .tap { ch_raw_samplesheet }
+        .map { validateInputSamplesheetRow(it, input_type) }
         .map { [[id:it[0]], it[3]] }
         .groupTuple()
-
-        // sample_header = sheet_keys(input_cycle_schema)
 
     } else {
         error "Either input_sample or input_cycle is required."
     }
-
-    /*
-    Channel.from(sample_header)
-        .toList()
-        .concat(ch_raw_samplesheet)
-        .toList()
-        .map { validateInputSamplesheet(it, input_type) }
-    */
-
-    ch_raw_samplesheet
-        .toList()
-        .map { validateInputSamplesheet(it, input_type) }
 
     Channel.fromSamplesheet(
         "marker_sheet",
@@ -308,25 +294,23 @@ def sheet_keys(path_marker_schema) {
     return InputJSON['items']['properties'].keySet()
 }
 
-def validateInputSamplesheet ( sheet_data_VIS, mode_VIS ) {
+def validateInputSamplesheetRow ( row, mode ) {
     // TODO: Add sample sheet validation.
 
-    if (mode_VIS == "sample") {
+    if (mode == "sample") {
         // check for the existence of all files under cycle_image column in the given image_directory
-        sheet_data_VIS.each { row_VIS ->
-            if (row_VIS[2] != []) {
-                file_list_VIS = row_VIS[2].split(" ")
-                file_list_VIS.each { curr_file_VIS ->
-                    File curr_path_VIS = new File(row_VIS[1].toString() + "/" + curr_file_VIS)
-                    if (!curr_path_VIS.exists()) {
-                        error("Error: file in samplesheet not found: $curr_path_VIS")
-                    }
+        if (row.size() >= 3 && row[2] != []) {
+            file_list = row[2].split(" ")
+            file_list.each { curr_file ->
+                def curr_path = new File(row[1].toString() + "/" + curr_file)
+                if (!curr_path.exists()) {
+                    error("Error: file in samplesheet not found: $curr_path")
                 }
             }
         }
     }
 
-    return sheet_data_VIS
+    return row
 }
 
 def validateInputSamplesheetMarkersheet( sheet_data, mode ) {
