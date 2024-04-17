@@ -121,11 +121,8 @@ workflow PIPELINE_INITIALISATION {
         .toList()
         .map{ validateInputMarkersheet(it) }
 
-    Channel.of(["divider"])
-        .set { divider }
-
     ch_raw_samplesheet
-        .concat(divider)
+        .concat(Channel.of(["divider"]))
         .concat(markersheet_data)
         .toList()
         .map { validateInputSamplesheetMarkersheet(it, input_type) }
@@ -324,19 +321,19 @@ def validateInputSamplesheetMarkersheet ( sheet_data, mode ) {
     }
 }
 
-def make_ashlar_input_sample( sample_sheet_row ) {
+def make_ashlar_input_sample( samplesheet_row ) {
 
     def cycle_images = []
     def index_sample_cycle_images = input_sheet_index("sample", "cycle_images")
     def index_sample_image_directory = input_sheet_index("sample","image_directory")
     def index_sample_sample = input_sheet_index("sample", "sample")
 
-    if (sample_sheet_row[index_sample_cycle_images] != []) {
-        def tmp_path = sample_sheet_row[index_sample_image_directory]
+    if (!samplesheet_row[index_sample_cycle_images].isEmpty()) {
+        def tmp_path = samplesheet_row[index_sample_image_directory]
         if (tmp_path[-1] != "/") {
             tmp_path = "${tmp_path}/"
         }
-        cycle_images = sample_sheet_row[index_sample_cycle_images].split(' ').collect{ "${tmp_path}${it}" }
+        cycle_images = samplesheet_row[index_sample_cycle_images].split(' ').collect{ "${tmp_path}${it}" }
         cycle_images.each{ file_path ->
             def file_test = new File(file_path)
             if (!file_test.exists()) {
@@ -345,7 +342,7 @@ def make_ashlar_input_sample( sample_sheet_row ) {
         }
     } else {
         // TODO: remove this option or allow it to grab all files when no column in the samplesheet?
-        def image_dir = sample_sheet_row[index_sample_image_directory]
+        def image_dir = samplesheet_row[index_sample_image_directory]
         image_dir.eachFileRecurse (FileType.FILES) {
             if(it.toString().endsWith(".ome.tif")){
                 cycle_images << file(it)
@@ -353,7 +350,7 @@ def make_ashlar_input_sample( sample_sheet_row ) {
         }
     }
 
-    return [[id:sample_sheet_row[index_sample_sample]], cycle_images]
+    return [[id:samplesheet_row[index_sample_sample]], cycle_images]
 }
 
 //
