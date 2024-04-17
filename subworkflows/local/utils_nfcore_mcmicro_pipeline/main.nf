@@ -324,32 +324,33 @@ def validateInputSamplesheetMarkersheet( sheet_data, mode ) {
     }
 }
 
-def make_ashlar_input_sample(sample_sheet_row_MAIS) {
+def make_ashlar_input_sample(sample_sheet_row) {
 
-    if (sample_sheet_row_MAIS[input_sheet_index("sample", "cycle_images")] != []) {
-        tmp_path_MAIS = sample_sheet_row_MAIS[input_sheet_index("sample","image_directory")]
-        if (tmp_path_MAIS[-1] != "/") {
-            tmp_path_MAIS = "${tmp_path_MAIS}/"
+    def cycle_images = []
+
+    if (sample_sheet_row[input_sheet_index("sample", "cycle_images")] != []) {
+        def tmp_path = sample_sheet_row[input_sheet_index("sample","image_directory")]
+        if (tmp_path[-1] != "/") {
+            tmp_path = "${tmp_path}/"
         }
-        cycle_images_MAIS = sample_sheet_row_MAIS[input_sheet_index("sample", "cycle_images")].split(' ').collect{ "${tmp_path_MAIS}${it}" }
-        cycle_images_MAIS.each{ file_path_MAIS ->
-            File file_test_MAIS = new File(file_path_MAIS)
-            if (!file_test_MAIS.exists()) {
-                Nextflow.error("Error: ${file_path_MAIS} does not exist!")
+        cycle_images = sample_sheet_row[input_sheet_index("sample", "cycle_images")].split(' ').collect{ "${tmp_path}${it}" }
+        cycle_images.each{ file_path ->
+            def file_test = new File(file_path)
+            if (!file_test.exists()) {
+                Nextflow.error("Error: ${file_path} does not exist!")
             }
         }
     } else {
         // TODO: remove this option or allow it to grab all files when no column in the samplesheet?
-        cycle_images_MAIS = []
-        image_dir_MAIS = sample_sheet_row_MAIS[input_sheet_index("sample", "image_directory")]
-        image_dir_MAIS.eachFileRecurse (FileType.FILES) {
+        def image_dir = sample_sheet_row[input_sheet_index("sample", "image_directory")]
+        image_dir.eachFileRecurse (FileType.FILES) {
             if(it.toString().endsWith(".ome.tif")){
-                cycle_images_MAIS << file(it)
+                cycle_images << file(it)
             }
         }
     }
 
-    return [[id:sample_sheet_row_MAIS[input_sheet_index("sample", "sample")]], cycle_images_MAIS]
+    return [[id:sample_sheet_row[input_sheet_index("sample", "sample")]], cycle_images]
 }
 
 //
