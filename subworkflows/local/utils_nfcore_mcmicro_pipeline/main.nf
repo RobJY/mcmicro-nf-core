@@ -11,10 +11,6 @@
 import groovy.io.FileType
 import groovy.json.JsonSlurper
 
-markersheet_schema = "${projectDir}/assets/schema_marker.json"
-input_cycle_schema = "${projectDir}/assets/schema_input_cycle.json"
-input_sample_schema = "${projectDir}/assets/schema_input_sample.json"
-
 include { UTILS_NFVALIDATION_PLUGIN } from '../../nf-core/utils_nfvalidation_plugin'
 include { paramsSummaryMap          } from 'plugin/nf-validation'
 include { fromSamplesheet           } from 'plugin/nf-validation'
@@ -121,31 +117,16 @@ workflow PIPELINE_INITIALISATION {
         )
         .set { markersheet_data }
 
-    markersheet_header = sheet_keys(markersheet_schema)
-    Channel.from(markersheet_header)
+    markersheet_data
         .toList()
-        .concat(markersheet_data)
-        .toList()
-        //.tap { full_marker_data }
         .map{ validateInputMarkersheet(it) }
-
-    // TODO: fix: tap above causes workflow to hang at the end
-    //       so I'm making full_marker_data again here
-    Channel.from(markersheet_header)
-        .toList()
-        .concat(markersheet_data)
-        .toList()
-        .set { full_marker_data }
 
     Channel.of(["divider"])
         .set { divider }
 
-    sample_cycle_header = sheet_keys(input_cycle_schema)
-    Channel.from(sample_cycle_header)
-        .toList()
-        .concat(ch_raw_samplesheet)
+    ch_raw_samplesheet
         .concat(divider)
-        .concat(full_marker_data)
+        .concat(markersheet_data)
         .toList()
         .map { validateInputSamplesheetMarkersheet(it, input_type) }
 
@@ -214,53 +195,56 @@ def validateInputParameters() {
 
 def validateInputMarkersheet( sheet_data ) {
 
-    marker_map = [:]
-    ctr = 0
+    idx_marker_name = input_sheet_index("marker", "marker_name")
+    idx_channel_number = input_sheet_index("marker", "channel_number")
+    idx_cycle_number = input_sheet_index("marker", "cycle_number")
+    marker_name_list = []
+    channel_number_list = []
+    cycle_number_list = []
+
     sheet_data.each { curr_list ->
-        if ( ctr == 0 ) {
-            keys = curr_list.unique( false )
-            keys.each { curr_val ->
-                marker_map[curr_val] = []
+        idx = 0
+        curr_list.each { curr_val ->
+            if (idx == idx_marker_name) {
+                marker_name_list.add(curr_val)
+            } else if (idx == idx_channel_number) {
+                channel_number_list.add(curr_val)
+            } else if (idx == idx_cycle_number) {
+                cycle_number_list.add(curr_val)
             }
-        } else {
-            idx = 0
-            curr_list.each { curr_val ->
-                marker_map[keys[idx]].add(curr_val)
-                idx++
-            }
+            idx++
         }
-        ctr++
     }
 
     // uniqueness of marker name in marker sheet
-    if ( marker_map['marker_name'].size() != marker_map['marker_name'].unique( false ).size() ) {
+    if ( marker_name_list.size() != marker_name_list.unique( false ).size() ) {
         throw new Exception("Error: duplicate marker name found in marker sheet!")
     }
 
     // uniqueness of (channel, cycle) tuple in marker sheet
-    test_tuples = [marker_map['channel_number'], marker_map['cycle_number']].transpose()
+    test_tuples = [channel_number_list, cycle_number_list].transpose()
     if ( test_tuples.size() != test_tuples.unique( false ).size() ) {
         throw new Exception("Error: duplicate (channel,cycle) pair")
     }
 
     // cycle and channel are 1-based so 0 should throw an exception
-    if (marker_map['channel_number'].stream().anyMatch { it.toInteger() < 1 }) {
+    if (channel_number_list.stream().anyMatch { it.toInteger() < 1 }) {
         throw new Exception("Error: channel_number must be >= 1")
     }
-    if (marker_map['cycle_number'].stream().anyMatch { it.toInteger() < 1 }) {
+    if (cycle_number_list.stream().anyMatch { it.toInteger() < 1 }) {
         throw new Exception("Error: cycle_number must be >= 1")
     }
 
     // cycle and channel cannot skip values and must be in order
-    prev_cycle = marker_map['cycle_number'][0]
-    marker_map['cycle_number'].each { curr_cycle ->
+    prev_cycle = cycle_number_list[0]
+    cycle_number_list.each { curr_cycle ->
         if ( (curr_cycle.toInteger() != prev_cycle.toInteger() ) && (curr_cycle.toInteger() != prev_cycle.toInteger() + 1) ) {
             throw new Exception("Error: cycle_number cannot skip values and must be in order!")
         }
         prev_cycle = curr_cycle
     }
-    prev_channel = marker_map['channel_number'][0]
-    marker_map['channel_number'].each { curr_channel ->
+    prev_channel = channel_number_list[0]
+    channel_number_list.each { curr_channel ->
         if ( (curr_channel.toInteger() != prev_channel.toInteger() ) && (curr_channel.toInteger() != (prev_channel.toInteger() + 1)) ) {
             throw new Exception("Error: channel_number cannot skip values and must be in order!")
         }
@@ -288,12 +272,6 @@ def input_sheet_index(sheet_type, column_name) {
     return index_map[column_name]
 }
 
-def sheet_keys(path_marker_schema) {
-    def inputFile = new File(path_marker_schema)
-    def InputJSON = new JsonSlurper().parseText(inputFile.text)
-    return InputJSON['items']['properties'].keySet()
-}
-
 def validateInputSamplesheetRow ( row, mode ) {
     // TODO: Add sample sheet validation.
 
@@ -314,47 +292,40 @@ def validateInputSamplesheetRow ( row, mode ) {
 }
 
 def validateInputSamplesheetMarkersheet( sheet_data, mode ) {
-
     if (mode == 'cycle' ) {
-        sample_cycle_list = []
-        marker_cycle_list = []
-        marker_mode = false
-        ctr_list = 0
-        idx_cycle_number = -1
-        sheet_data.each { curr_list_cvsams ->
-            if ( marker_mode) {
-                curr_list_cvsams.each { curr_sublist_cvsams ->
-                    if(ctr_list == 0){
-                        idx_cycle_number = curr_list_cvsams.indexOf('cycle_number')
-                        ctr_list++
-                    } else {
-                        marker_cycle_list.add(curr_sublist_cvsams[1])
-                    }
-                }
+        def sample_cycle_list = []
+        def marker_cycle_list = []
+        def marker_mode = false
+        def idx_sample_cycle = input_sheet_index("cycle", "cycle_number")
+        def idx_marker_cycle = input_sheet_index("marker", "cycle_number")
+
+        sheet_data.each { curr_list ->
+            if (curr_list[0] == "divider") {
+                marker_mode = true
             } else {
-                if (curr_list_cvsams == ["divider"]) {
-                    marker_mode = true
-                    ctr_list = 0
-                } else {
-                    if (ctr_list == 0) {
-                        idx_cycle_number = curr_list_cvsams.indexOf('cycle_number')
-                        ctr_list++
-                    } else {
-                        sample_cycle_list.add(curr_list_cvsams[idx_cycle_number])
+                def ctr = 0
+                curr_list.each { curr_list_element ->
+                    if (marker_mode && ctr == idx_marker_cycle) {
+                        marker_cycle_list.add(curr_list_element)
+                    } else if (!marker_mode && ctr == idx_sample_cycle) {
+                        sample_cycle_list.add(curr_list_element)
                     }
+                    ctr++
                 }
             }
         }
-
         if (marker_cycle_list.unique() != sample_cycle_list.unique() ) {
             throw new Exception("Error: cycle_number in sample and marker sheets must match 1:1!")
         }
     } else if ( mode == 'sample' ) {
         // TODO: add validation for 1 row per sample samplesheet & markersheet correspondence
+    } else {
+        error("Error: bad mode $mode in validateInputSamplesheetMarkersheet()")
     }
 }
 
-def make_ashlar_input_sample(ArrayList sample_sheet_row_MAIS) {
+def make_ashlar_input_sample(sample_sheet_row_MAIS) {
+
     if (sample_sheet_row_MAIS[input_sheet_index("sample", "cycle_images")] != []) {
         tmp_path_MAIS = sample_sheet_row_MAIS[input_sheet_index("sample","image_directory")]
         if (tmp_path_MAIS[-1] != "/") {
