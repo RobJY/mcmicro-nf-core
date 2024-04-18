@@ -115,9 +115,7 @@ workflow PIPELINE_INITIALISATION {
         "marker_sheet",
         skip_duplicate_check: false
         )
-        .set { markersheet_data }
-
-    markersheet_data
+        .tap { markersheet_data }
         .toList()
         .map{ validateInputMarkersheet(it) }
 
