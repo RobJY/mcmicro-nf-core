@@ -200,34 +200,34 @@ def validateInputMarkersheet( sheet_data ) {
     sheet_data.each { curr_list ->
         def idx = 0
         curr_list.each { curr_val ->
+            curr_pair = [-1, -1]
             if (idx == idx_marker_name) {
-                marker_name_list.add(curr_val)
+                if (marker_name_list.contains(curr_val)) {
+                    error("Error: duplicate marker name found in marker sheet!")
+                } else {
+                    marker_name_list.add(curr_val)
+                }
             } else if (idx == idx_channel_number) {
-                channel_number_list.add(curr_val)
+                if (curr_val <= 0) {
+                    error("Error: channel_number must be >= 1")
+                } else {
+                    channel_number_list.add(curr_val)
+                }
             } else if (idx == idx_cycle_number) {
-                cycle_number_list.add(curr_val)
+                if (curr_val <= 0) {
+                    error("Error: cycle_number must be >= 1")
+                } else {
+                    cycle_number_list.add(curr_val)
+                }
             }
             idx++
         }
-    }
-
-    // uniqueness of marker name in marker sheet
-    if ( marker_name_list.size() != marker_name_list.unique( false ).size() ) {
-        error("Error: duplicate marker name found in marker sheet!")
     }
 
     // uniqueness of (channel, cycle) tuple in marker sheet
     test_tuples = [channel_number_list, cycle_number_list].transpose()
     if ( test_tuples.size() != test_tuples.unique( false ).size() ) {
         error("Error: duplicate (channel,cycle) pair")
-    }
-
-    // cycle and channel are 1-based so 0 should throw an exception
-    if (channel_number_list.stream().anyMatch { it.toInteger() < 1 }) {
-        error("Error: channel_number must be >= 1")
-    }
-    if (cycle_number_list.stream().anyMatch { it.toInteger() < 1 }) {
-        error("Error: cycle_number must be >= 1")
     }
 
     // cycle and channel cannot skip values and must be in order
