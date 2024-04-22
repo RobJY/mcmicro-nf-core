@@ -125,6 +125,7 @@ workflow PIPELINE_INITIALISATION {
         .toList()
         .map { validateInputSamplesheetMarkersheet(it, input_type) }
 
+
     emit:
     samplesheet = ch_samplesheet
     versions    = ch_versions
@@ -210,12 +211,16 @@ def validateInputMarkersheet( sheet_data ) {
             } else if (idx == idx_channel_number) {
                 if (curr_val <= 0) {
                     error("Error: channel_number must be >= 1")
+                } else if (channel_number_list && (curr_val != channel_number_list[-1] && curr_val != channel_number_list[-1].toInteger() + 1)) {
+                    error("Error: channel_number cannot skip values and must be in order!")
                 } else {
                     channel_number_list.add(curr_val)
                 }
             } else if (idx == idx_cycle_number) {
                 if (curr_val <= 0) {
                     error("Error: cycle_number must be >= 1")
+                } else if (cycle_number_list && (curr_val != cycle_number_list[-1] && curr_val != cycle_number_list[-1].toInteger() + 1)) {
+                    error("Error: cycle_number cannot skip values and must be in order!")
                 } else {
                     cycle_number_list.add(curr_val)
                 }
@@ -225,25 +230,9 @@ def validateInputMarkersheet( sheet_data ) {
     }
 
     // uniqueness of (channel, cycle) tuple in marker sheet
-    test_tuples = [channel_number_list, cycle_number_list].transpose()
+    def test_tuples = [channel_number_list, cycle_number_list].transpose()
     if ( test_tuples.size() != test_tuples.unique( false ).size() ) {
         error("Error: duplicate (channel,cycle) pair")
-    }
-
-    // cycle and channel cannot skip values and must be in order
-    def prev_cycle = cycle_number_list[0]
-    cycle_number_list.each { curr_cycle ->
-        if ( (curr_cycle.toInteger() != prev_cycle.toInteger() ) && (curr_cycle.toInteger() != prev_cycle.toInteger() + 1) ) {
-            error("Error: cycle_number cannot skip values and must be in order!")
-        }
-        prev_cycle = curr_cycle
-    }
-    def prev_channel = channel_number_list[0]
-    channel_number_list.each { curr_channel ->
-        if ( (curr_channel.toInteger() != prev_channel.toInteger() ) && (curr_channel.toInteger() != (prev_channel.toInteger() + 1)) ) {
-            throw new Exception("Error: channel_number cannot skip values and must be in order!")
-        }
-        prev_channel = curr_channel
     }
 
     return sheet_data
@@ -253,6 +242,8 @@ def validateInputMarkersheet( sheet_data ) {
 //   as defined in the schema file.
 //   (will need to be updated when the schema files change)
 def input_sheet_index( sheet_type, column_name ) {
+
+    def index_map = [:]
     if (sheet_type == "sample") {
         index_map = [sample: 0, image_directory: 1, cycle_images: 2, dfp: 3, ffp: 4]
     } else if (sheet_type == "cycle") {
@@ -268,7 +259,7 @@ def input_sheet_index( sheet_type, column_name ) {
 }
 
 def validateInputSamplesheetRow ( row, mode ) {
-    // TODO: Add sample sheet validation.
+    // TODO: Add sample sheet validation for cycle inputs
 
     if (mode == "sample") {
         // check for the existence of all files under cycle_image column in the given image_directory
@@ -326,7 +317,7 @@ def make_ashlar_input_sample( samplesheet_row ) {
     def index_sample_image_directory = input_sheet_index("sample","image_directory")
     def index_sample_sample = input_sheet_index("sample", "sample")
 
-    if (!samplesheet_row[index_sample_cycle_images].isEmpty()) {
+    if (samplesheet_row[index_sample_cycle_images]) {
         def tmp_path = samplesheet_row[index_sample_image_directory]
         if (tmp_path[-1] != "/") {
             tmp_path = "${tmp_path}/"
