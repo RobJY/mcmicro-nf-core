@@ -85,7 +85,6 @@ workflow PIPELINE_INITIALISATION {
     // Create channel from input file provided through params.input
     //
     def input_type
-
     if (input_sample) {
         input_type = "sample"
         ch_samplesheet = Channel.fromSamplesheet(
@@ -120,11 +119,10 @@ workflow PIPELINE_INITIALISATION {
         .map{ validateInputMarkersheet(it) }
 
     ch_raw_samplesheet
-        .concat(Channel.of(["divider"]))
+        .toList()
         .concat(markersheet_data)
         .toList()
         .map { validateInputSamplesheetMarkersheet(it, input_type) }
-
 
     emit:
     samplesheet = ch_samplesheet
@@ -279,29 +277,24 @@ def validateInputSamplesheetRow ( row, mode ) {
 
 def validateInputSamplesheetMarkersheet ( sheet_data, mode ) {
     if (mode == 'cycle' ) {
+        def ctr = 0
         def sample_cycle_list = []
         def marker_cycle_list = []
-        def marker_mode = false
         def idx_sample_cycle = input_sheet_index("cycle", "cycle_number")
         def idx_marker_cycle = input_sheet_index("marker", "cycle_number")
 
         sheet_data.each { curr_list ->
-            if (curr_list[0] == "divider") {
-                marker_mode = true
-            } else {
-                def ctr = 0
-                curr_list.each { curr_list_element ->
-                    if (marker_mode && ctr == idx_marker_cycle) {
-                        marker_cycle_list.add(curr_list_element)
-                    } else if (!marker_mode && ctr == idx_sample_cycle) {
-                        sample_cycle_list.add(curr_list_element)
-                    }
-                    ctr++
+            if (ctr == 0) {
+                curr_list.each { curr_sublist ->
+                    sample_cycle_list.add(curr_sublist[idx_sample_cycle])
                 }
+            } else {
+                marker_cycle_list.add(curr_list[idx_marker_cycle])
             }
+            ctr++
         }
         if (marker_cycle_list.unique() != sample_cycle_list.unique() ) {
-            throw new Exception("Error: cycle_number in sample and marker sheets must match 1:1!")
+            error("Error: cycle_number in sample and marker sheets must match 1:1!")
         }
     } else if ( mode == 'sample' ) {
         // TODO: add validation for 1 row per sample samplesheet & markersheet correspondence
