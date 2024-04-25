@@ -62,9 +62,9 @@ workflow MCMICRO {
                 .map { [[it[1].toString().split('/')[-1][0..-5],it[0]], it[1]] }
                 .set { ashlar_input_keyed }
 
-                ch_samplesheet
-                    .transpose()
-                    .set { ch_basicpy_input }
+            ch_samplesheet
+                .transpose()
+                .set { ch_basicpy_input }
 
             BASICPY(ch_basicpy_input)
             ch_versions = ch_versions.mix(BASICPY.out.versions)
