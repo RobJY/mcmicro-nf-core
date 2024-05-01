@@ -93,7 +93,7 @@ workflow PIPELINE_INITIALISATION {
         )
         .tap { ch_raw_samplesheet }
         .map { validateInputSamplesheetRow(it, input_type) }
-        .map { make_ashlar_input_sample(it) }
+        .map { makeAshlarInputSample(it) }
 
     } else if (input_cycle) {
         input_type = "cycle"
@@ -189,9 +189,9 @@ def validateInputParameters() {
 
 def validateInputMarkersheet( sheet_data ) {
 
-    def idx_marker_name = input_sheet_index("marker", "marker_name")
-    def idx_channel_number = input_sheet_index("marker", "channel_number")
-    def idx_cycle_number = input_sheet_index("marker", "cycle_number")
+    def idx_marker_name = inputSheetIndex("marker", "marker_name")
+    def idx_channel_number = inputSheetIndex("marker", "channel_number")
+    def idx_cycle_number = inputSheetIndex("marker", "cycle_number")
     def marker_name_list = []
     def channel_number_list = []
     def cycle_number_list = []
@@ -239,7 +239,7 @@ def validateInputMarkersheet( sheet_data ) {
 // function that returns the index of a given column from a given sheet
 //   as defined in the schema file.
 //   (will need to be updated when the schema files change)
-def input_sheet_index( sheet_type, column_name ) {
+def inputSheetIndex( sheet_type, column_name ) {
 
     def index_map = [:]
     if (sheet_type == "sample") {
@@ -280,8 +280,8 @@ def validateInputSamplesheetMarkersheet ( sheet_data, mode ) {
         def ctr = 0
         def sample_cycle_list = []
         def marker_cycle_list = []
-        def idx_sample_cycle = input_sheet_index("cycle", "cycle_number")
-        def idx_marker_cycle = input_sheet_index("marker", "cycle_number")
+        def idx_sample_cycle = inputSheetIndex("cycle", "cycle_number")
+        def idx_marker_cycle = inputSheetIndex("marker", "cycle_number")
 
         sheet_data.each { curr_list ->
             if (ctr == 0) {
@@ -303,12 +303,12 @@ def validateInputSamplesheetMarkersheet ( sheet_data, mode ) {
     }
 }
 
-def make_ashlar_input_sample( samplesheet_row ) {
+def makeAshlarInputSample( samplesheet_row ) {
 
     def cycle_images = []
-    def index_sample_cycle_images = input_sheet_index("sample", "cycle_images")
-    def index_sample_image_directory = input_sheet_index("sample","image_directory")
-    def index_sample_sample = input_sheet_index("sample", "sample")
+    def index_sample_cycle_images = inputSheetIndex("sample", "cycle_images")
+    def index_sample_image_directory = inputSheetIndex("sample","image_directory")
+    def index_sample_sample = inputSheetIndex("sample", "sample")
 
     if (samplesheet_row[index_sample_cycle_images]) {
         def tmp_path = samplesheet_row[index_sample_image_directory]
