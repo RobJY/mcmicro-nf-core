@@ -317,7 +317,7 @@ def make_ashlar_input_sample( samplesheet_row ) {
         }
         cycle_images = samplesheet_row[index_sample_cycle_images].split(' ').collect{ "${tmp_path}${it}" }
         cycle_images.each{ file_path ->
-            def file_test = new File(file_path)
+            def file_test = file(file_path)
             if (!file_test.exists()) {
                 Nextflow.error("Error: ${file_path} does not exist!")
             }
