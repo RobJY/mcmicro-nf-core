@@ -24,12 +24,16 @@
             },
             "dfp": {
                 "type": "string",
+                "format": "file-path",
                 "pattern": "^\\S+$",
+                "exists": true,
                 "errorMessage": "provide path to dfp illumination correction file(s) if illumination parameter is manual"
             },
             "ffp": {
                 "type": "string",
+                "format": "file-path",
                 "pattern": "^\\S+$",
+                "exists": true,
                 "errorMessage": "provide path to ffp illumination correction file(s) if illumination parameter is manual"
             }
         },
