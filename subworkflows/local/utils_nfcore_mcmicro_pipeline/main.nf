@@ -325,11 +325,10 @@ def make_ashlar_input_sample( samplesheet_row ) {
     } else {
         // TODO: remove this option or allow it to grab all files when no column in the samplesheet?
         def image_dir = samplesheet_row[index_sample_image_directory]
-        image_dir.eachFileRecurse (FileType.FILES) {
-            if(it.toString().endsWith(".ome.tif")){
-                cycle_images << file(it)
-            }
+        image_dir.eachFileMatch (FileType.FILES, ~/^.*\.ome.tif$/) {
+            cycle_images << file(it)
         }
+        cycle_images.sort()
     }
 
     return [[id:samplesheet_row[index_sample_sample]], cycle_images]
