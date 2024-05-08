@@ -515,6 +515,30 @@
                 "physicalSizeX": 1.0,
                 "physicalSizeY": 1.0,
                 "physicalSizeZ": null
+            },
+            {
+                "format": "Tagged Image File Format",
+                "type": "float",
+                "sizeX": 220,
+                "sizeY": 180,
+                "sizeZ": 1,
+                "sizeC": 4,
+                "sizeT": 1,
+                "physicalSizeX": 1.0,
+                "physicalSizeY": 1.0,
+                "physicalSizeZ": null
+            },
+            {
+                "format": "Tagged Image File Format",
+                "type": "float",
+                "sizeX": 220,
+                "sizeY": 180,
+                "sizeZ": 1,
+                "sizeC": 4,
+                "sizeT": 1,
+                "physicalSizeX": 1.0,
+                "physicalSizeY": 1.0,
+                "physicalSizeZ": null
             }
         ],
         "meta": {
@@ -657,6 +681,30 @@
                     "Orientation"
                 ],
                 "rowCount": 288
+            },
+            {
+                "format": "Tagged Image File Format",
+                "type": "float",
+                "sizeX": 220,
+                "sizeY": 180,
+                "sizeZ": 1,
+                "sizeC": 4,
+                "sizeT": 1,
+                "physicalSizeX": 1.0,
+                "physicalSizeY": 1.0,
+                "physicalSizeZ": null
+            },
+            {
+                "format": "Tagged Image File Format",
+                "type": "float",
+                "sizeX": 220,
+                "sizeY": 180,
+                "sizeZ": 1,
+                "sizeC": 4,
+                "sizeT": 1,
+                "physicalSizeX": 1.0,
+                "physicalSizeY": 1.0,
+                "physicalSizeZ": null
             },
             {
                 "format": "Tagged Image File Format",

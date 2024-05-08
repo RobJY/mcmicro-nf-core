@@ -92,8 +92,8 @@ nextflow_workflow {
                             ImageUtils.getImageMetadata("$outputDir/registration/ashlar/TEST1.ome.tif"),
                             ImageUtils.getImageMetadata("$outputDir/segmentation/deepcell_mesmer/mask_TEST1.tif"),
                             CsvUtils.summarizeCsv("$outputDir/quantification/mcquant/TEST1_mask_TEST1.csv"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle1.ome-dfp.tiff"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle1.ome-ffp.tiff")
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/TEST1_cycif-tonsil-cycle1.ome-dfp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/TEST1_cycif-tonsil-cycle1.ome-ffp.tiff")
                         ).match()
                     },
                     { assert workflow.success }
@@ -308,12 +308,12 @@ nextflow_workflow {
                             ImageUtils.getImageMetadata("$outputDir/registration/ashlar/cycif-tonsil.ome.tif"),
                             ImageUtils.getImageMetadata("$outputDir/segmentation/deepcell_mesmer/mask_cycif-tonsil.tif"),
                             CsvUtils.summarizeCsv("$outputDir/quantification/mcquant/cycif-tonsil_mask_cycif-tonsil.csv"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle1.ome-dfp.tiff"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle1.ome-ffp.tiff"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle2.ome-dfp.tiff"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle2.ome-ffp.tiff"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle3.ome-dfp.tiff"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle3.ome-ffp.tiff")
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil_cycif-tonsil-cycle1.ome-dfp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil_cycif-tonsil-cycle1.ome-ffp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil_cycif-tonsil-cycle2.ome-dfp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil_cycif-tonsil-cycle2.ome-ffp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil_cycif-tonsil-cycle3.ome-dfp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil_cycif-tonsil-cycle3.ome-ffp.tiff")
                         ).match()
                     },
                     { assert workflow.success }
@@ -362,12 +362,14 @@ nextflow_workflow {
                             path("$outputDir/segmentation/deepcell_mesmer/mask_cycif-tonsil2.tif"),
                             CsvUtils.summarizeCsv("$outputDir/quantification/mcquant/cycif-tonsil_mask_cycif-tonsil.csv"),
                             CsvUtils.summarizeCsv("$outputDir/quantification/mcquant/cycif-tonsil2_mask_cycif-tonsil2.csv"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle1.ome-dfp.tiff"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle1.ome-ffp.tiff"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle2.ome-dfp.tiff"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle2.ome-ffp.tiff"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle3.ome-dfp.tiff"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle3.ome-ffp.tiff")
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil_cycif-tonsil-cycle1.ome-dfp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil_cycif-tonsil-cycle1.ome-ffp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil_cycif-tonsil-cycle2.ome-dfp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil_cycif-tonsil-cycle2.ome-ffp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil2_cycif-tonsil-cycle2.ome-dfp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil2_cycif-tonsil-cycle2.ome-ffp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil2_cycif-tonsil-cycle3.ome-dfp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil2_cycif-tonsil-cycle3.ome-ffp.tiff")
                         ).match()
                     },
                     { assert workflow.success }
@@ -441,10 +443,10 @@ nextflow_workflow {
                             ImageUtils.getImageMetadata("$outputDir/registration/ashlar/TEST1.ome.tif"),
                             ImageUtils.getImageMetadata("$outputDir/segmentation/deepcell_mesmer/mask_TEST1.tif"),
                             CsvUtils.summarizeCsv("$outputDir/quantification/mcquant/TEST1_mask_TEST1.csv"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle1.ome-dfp.tiff"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle1.ome-ffp.tiff"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle2.ome-dfp.tiff"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle2.ome-ffp.tiff")
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/TEST1_cycif-tonsil-cycle1.ome-dfp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/TEST1_cycif-tonsil-cycle1.ome-ffp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/TEST1_cycif-tonsil-cycle2.ome-dfp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/TEST1_cycif-tonsil-cycle2.ome-ffp.tiff")
                         ).match()
                     },
                     { assert workflow.success }
@@ -495,12 +497,14 @@ nextflow_workflow {
                             ImageUtils.getImageMetadata("$outputDir/segmentation/deepcell_mesmer/mask_TEST2.tif"),
                             CsvUtils.summarizeCsv("$outputDir/quantification/mcquant/TEST1_mask_TEST1.csv"),
                             CsvUtils.summarizeCsv("$outputDir/quantification/mcquant/TEST2_mask_TEST2.csv"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle1.ome-dfp.tiff"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle1.ome-ffp.tiff"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle2.ome-dfp.tiff"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle2.ome-ffp.tiff"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle3.ome-dfp.tiff"),
-                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/cycif-tonsil-cycle3.ome-ffp.tiff")
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/TEST1_cycif-tonsil-cycle1.ome-dfp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/TEST1_cycif-tonsil-cycle1.ome-ffp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/TEST1_cycif-tonsil-cycle2.ome-dfp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/TEST1_cycif-tonsil-cycle2.ome-ffp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/TEST2_cycif-tonsil-cycle3.ome-dfp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/TEST2_cycif-tonsil-cycle3.ome-ffp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/TEST2_cycif-tonsil-cycle1.ome-dfp.tiff"),
+                            ImageUtils.getImageMetadata("$outputDir/illumination_correction/basicpy/TEST2_cycif-tonsil-cycle1.ome-ffp.tiff")
                         ).match()
                     },
                     { assert workflow.success }

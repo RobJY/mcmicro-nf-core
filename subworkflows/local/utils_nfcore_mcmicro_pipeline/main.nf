@@ -262,7 +262,7 @@ def validateInputSamplesheetRow ( row, mode ) {
     if (mode == "sample") {
         // check for the existence of all files under cycle_image column in the given image_directory
         if (row.size() >= 3 && row[2] != []) {
-            def file_list = row[2].split(" ")
+            def file_list = row[2].split(";")
             file_list.each { curr_file ->
                 def curr_path = file(row[1].toString() + "/" + curr_file)
                 if (!curr_path.exists()) {
@@ -315,7 +315,7 @@ def make_ashlar_input_sample( samplesheet_row ) {
         if (tmp_path[-1] != "/") {
             tmp_path = "${tmp_path}/"
         }
-        cycle_images = samplesheet_row[index_sample_cycle_images].split(' ').collect{ "${tmp_path}${it}" }
+        cycle_images = samplesheet_row[index_sample_cycle_images].split(';').collect{ "${tmp_path}${it}" }
         cycle_images.each{ file_path ->
             def file_test = file(file_path)
             if (!file_test.exists()) {
