@@ -94,7 +94,7 @@ workflow PIPELINE_INITIALISATION {
         input_type = "cycle"
         ch_samplesheet = Channel.fromSamplesheet("input_cycle")
         .tap { ch_raw_samplesheet }
-        .map { [[id:it[0]], it[3]] }
+        .map { [[id:it[0],cycle_number:it[1],channel_count:it[2]], it[3],it[4],it[5]] }
         .groupTuple()
 
     } else {
@@ -110,6 +110,11 @@ workflow PIPELINE_INITIALISATION {
         .concat(markersheet_data.toList())
         .toList()
         .map { validateInputSamplesheetMarkersheet(it[0], it[1], input_type) }
+
+    ch_samplesheet.toList()
+        .concat(markersheet_data.toList())
+        .toList()
+        .map { validateInputSamplesheetMarkersheetNew(it[0], it[1]) }
 
     emit:
     samplesheet = ch_samplesheet
@@ -223,10 +228,21 @@ def validateInputSamplesheetMarkersheet ( samplesheet_data, markersheet_data, mo
     }
 }
 
+def validateInputSamplesheetMarkersheetNew ( samplesheet_data, markersheet_data ) {
+    if (samplesheet_data[0][0]['cycle_number']) {
+        def sample_cycle_list = samplesheet_data.collect { it[0]['cycle_number'] }
+        def marker_cycle_list = markersheet_data.collect { channel_number,cycle_number,marker_name,filter,excitation_wavelength,emission_wavelength -> cycle_number }
+
+        if (marker_cycle_list.unique() != sample_cycle_list.unique() ) {
+            error("Cycle_number in sample and marker sheets must match 1:1!")
+        }
+    }
+}
+
 def make_ashlar_input_sample( samplesheet_row ) {
 
     def cycle_image_list = []
-    def (sample,image_directory) = samplesheet_row
+    def (sample,image_directory,dfp,ffp) = samplesheet_row
 
     image_directory.eachFileRecurse (FileType.FILES) {
         if(it.toString().endsWith(".ome.tif")){
@@ -234,7 +250,7 @@ def make_ashlar_input_sample( samplesheet_row ) {
         }
     }
 
-    return [[id:sample], cycle_image_list]
+    return [[id:sample], cycle_image_list, dfp, ffp]
 }
 
 //
