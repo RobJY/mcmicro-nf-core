@@ -65,6 +65,10 @@
                     "type": "string",
                     "enum": ["manual", "basicpy"],
                     "description": "input that defines type of illumination correction to be performed"
+                },
+                "segmentation": {
+                    "type": "string",
+                    "enum": ["mesmer", "cellpose", "unmicst"]
                 }
             }
         },

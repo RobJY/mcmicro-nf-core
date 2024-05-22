@@ -125,17 +125,21 @@ workflow MCMICRO {
     // ch_versions = ch_versions.mix(BACKSUB.out.versions)
 
     // Run Segmentation
-    /*
-    DEEPCELL_MESMER(ASHLAR.out.tif, [[:],[]])
-    ch_versions = ch_versions.mix(DEEPCELL_MESMER.out.versions)
-    */
-
-    ASHLAR.out.tif
-        .view { "test ${it[0]} ${it[1]}" }
-        .set { cellpose_input }
-
-    CELLPOSE( cellpose_input, [] ) 
-    ch_versions = ch_versions.mix(CELLPOSE.out.versions)
+    if (params.illumination == "mesmer") {
+        DEEPCELL_MESMER(ASHLAR.out.tif, [[:],[]])
+        ch_versions = ch_versions.mix(DEEPCELL_MESMER.out.versions)
+    } else if (params.illumination = "cellpose") {
+        /*
+        ASHLAR.out.tif
+            .view { "test ${it[0]} ${it[1]}" }
+            .set { cellpose_input }
+        CELLPOSE( cellpose_input, [] ) 
+        */
+        CELLPOSE( ASHLAR.out.tif, [] ) 
+        ch_versions = ch_versions.mix(CELLPOSE.out.versions)
+    } else if (params.illumination = "unmicst"){
+        error("apologies, unmicst not supported yet")
+    }
 
     // Run Quantification
     mcquant_in = ASHLAR.out.tif.join(CELLPOSE.out.mask).multiMap { it ->
