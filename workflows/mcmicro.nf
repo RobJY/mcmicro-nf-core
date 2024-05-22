@@ -138,7 +138,6 @@ workflow MCMICRO {
     ch_versions = ch_versions.mix(CELLPOSE.out.versions)
 
     // Run Quantification
-    /*
     mcquant_in = ASHLAR.out.tif.join(CELLPOSE.out.mask).multiMap { it ->
         image: [it[0], it[1]]
         mask: [it[0], it[2]]
@@ -147,7 +146,6 @@ workflow MCMICRO {
             mcquant_in.mask,
             [[:], file(params.marker_sheet)])
     ch_versions = ch_versions.mix(MCQUANT.out.versions)
-    */
 
     /*
     // // Run Reporting
