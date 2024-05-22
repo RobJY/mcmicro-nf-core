@@ -116,21 +116,30 @@ workflow MCMICRO {
         ch_ffp = []
     }
 
-    ASHLAR(ch_samplesheet, ch_dfp, ch_ffp)
+    ASHLAR(ch_samplesheet.map{[[id:it[0]['id']], it[1][0]]}, ch_dfp, ch_ffp)
     ch_versions = ch_versions.mix(ASHLAR.out.versions)
 
-    // // Run Background Correction
+    // Run Background Correction
     // BACKSUB(ASHLAR.out.tif, ch_markers)
-    //BACKSUB(ASHLAR.out.tif, [[id: "backsub"], params.marker_sheet])
-    //ch_versions = ch_versions.mix(BACKSUB.out.versions)
+    // BACKSUB(ASHLAR.out.tif, [[id: "backsub"], params.marker_sheet])
+    // ch_versions = ch_versions.mix(BACKSUB.out.versions)
 
     // Run Segmentation
-
+    /*
     DEEPCELL_MESMER(ASHLAR.out.tif, [[:],[]])
     ch_versions = ch_versions.mix(DEEPCELL_MESMER.out.versions)
+    */
+
+    ASHLAR.out.tif
+        .view { "test ${it[0]} ${it[1]}" }
+        .set { cellpose_input }
+
+    CELLPOSE( cellpose_input, [] ) 
+    ch_versions = ch_versions.mix(CELLPOSE.out.versions)
 
     // Run Quantification
-    mcquant_in = ASHLAR.out.tif.join(DEEPCELL_MESMER.out.mask).multiMap { it ->
+    /*
+    mcquant_in = ASHLAR.out.tif.join(CELLPOSE.out.mask).multiMap { it ->
         image: [it[0], it[1]]
         mask: [it[0], it[2]]
     }
@@ -138,6 +147,7 @@ workflow MCMICRO {
             mcquant_in.mask,
             [[:], file(params.marker_sheet)])
     ch_versions = ch_versions.mix(MCQUANT.out.versions)
+    */
 
     /*
     // // Run Reporting
