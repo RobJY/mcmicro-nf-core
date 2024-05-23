@@ -38,15 +38,7 @@ workflow MCMICRO {
 
     input_type = params.input_cycle ? "cycle" : "sample"
 
-    ch_from_marker_sheet = Channel.fromSamplesheet(
-        "marker_sheet",
-        skip_duplicate_check: false
-        )
-
-    //
-    // MODULE: BASICPY
-    //
-
+    // Run Illumination Correction
     if ( params.illumination ) {
 
         if (params.illumination == 'basicpy') {
@@ -116,46 +108,44 @@ workflow MCMICRO {
         ch_ffp = []
     }
 
+    // Run Registration
     ASHLAR(ch_samplesheet.map{[[id:it[0]['id']], it[1][0]]}, ch_dfp, ch_ffp)
     ch_versions = ch_versions.mix(ASHLAR.out.versions)
 
     // Run Background Correction
-    // BACKSUB(ASHLAR.out.tif, ch_markers)
-    // BACKSUB(ASHLAR.out.tif, [[id: "backsub"], params.marker_sheet])
-    // ch_versions = ch_versions.mix(BACKSUB.out.versions)
+    if (params.backsub) {
+        BACKSUB(ASHLAR.out.tif, [[id:"$ASHLAR.out.tif[0]['id']"], params.marker_sheet])
+        ch_versions = ch_versions.mix(BACKSUB.out.versions)
+    }
 
     // Run Segmentation
     if (params.illumination == "mesmer") {
         DEEPCELL_MESMER(ASHLAR.out.tif, [[:],[]])
         ch_versions = ch_versions.mix(DEEPCELL_MESMER.out.versions)
+        mcquant_in = ASHLAR.out.tif.join(DEEPCELL_MESMER.out.mask).multiMap { it ->
+            image: [it[0], it[1]]
+            mask: [it[0], it[2]]
+        }
     } else if (params.illumination = "cellpose") {
-        /*
-        ASHLAR.out.tif
-            .view { "test ${it[0]} ${it[1]}" }
-            .set { cellpose_input }
-        CELLPOSE( cellpose_input, [] ) 
-        */
         CELLPOSE( ASHLAR.out.tif, [] ) 
         ch_versions = ch_versions.mix(CELLPOSE.out.versions)
+        mcquant_in = ASHLAR.out.tif.join(CELLPOSE.out.mask).multiMap { it ->
+            image: [it[0], it[1]]
+            mask: [it[0], it[2]]         
+        }
     } else if (params.illumination = "unmicst"){
         error("apologies, unmicst not supported yet")
     }
 
     // Run Quantification
-    mcquant_in = ASHLAR.out.tif.join(CELLPOSE.out.mask).multiMap { it ->
-        image: [it[0], it[1]]
-        mask: [it[0], it[2]]
-    }
     MCQUANT(mcquant_in.image,
             mcquant_in.mask,
             [[:], file(params.marker_sheet)])
     ch_versions = ch_versions.mix(MCQUANT.out.versions)
 
-    /*
-    // // Run Reporting
+    // Run Reporting
     SCIMAP_MCMICRO(MCQUANT.out.csv)
     ch_versions = ch_versions.mix(SCIMAP_MCMICRO.out.versions)
-    */
 
     //
     // Collate and save software versions

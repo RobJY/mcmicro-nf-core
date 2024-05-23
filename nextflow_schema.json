@@ -69,6 +69,10 @@
                 "segmentation": {
                     "type": "string",
                     "enum": ["mesmer", "cellpose", "unmicst"]
+                },
+                "backsub": {
+                    "type": "boolean",
+                    "description": "Apply background subtraction."
                 }
             }
         },
