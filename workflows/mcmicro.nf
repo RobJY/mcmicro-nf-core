@@ -119,21 +119,21 @@ workflow MCMICRO {
     }
 
     // Run Segmentation
-    if (params.illumination == "mesmer") {
+    if (params.segmentation == "mesmer") {
         DEEPCELL_MESMER(ASHLAR.out.tif, [[:],[]])
         ch_versions = ch_versions.mix(DEEPCELL_MESMER.out.versions)
         mcquant_in = ASHLAR.out.tif.join(DEEPCELL_MESMER.out.mask).multiMap { it ->
             image: [it[0], it[1]]
             mask: [it[0], it[2]]
         }
-    } else if (params.illumination = "cellpose") {
-        CELLPOSE( ASHLAR.out.tif, [] ) 
+    } else if (params.segmentation = "cellpose") {
+        CELLPOSE( ASHLAR.out.tif, [] )
         ch_versions = ch_versions.mix(CELLPOSE.out.versions)
         mcquant_in = ASHLAR.out.tif.join(CELLPOSE.out.mask).multiMap { it ->
             image: [it[0], it[1]]
-            mask: [it[0], it[2]]         
+            mask: [it[0], it[2]]
         }
-    } else if (params.illumination = "unmicst"){
+    } else if (params.segmentation = "unmicst"){
         error("apologies, unmicst not supported yet")
     }
 
