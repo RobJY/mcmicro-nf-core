@@ -101,8 +101,10 @@ workflow MCMICRO {
 
             ch_dfp = ch_manual_illumination_correction.dfp
             ch_ffp = ch_manual_illumination_correction.ffp
+        } else if (params.illumination == 'none') {
+            ch_dfp = []
+            ch_ffp = []
         }
-
     } else {
         ch_dfp = []
         ch_ffp = []

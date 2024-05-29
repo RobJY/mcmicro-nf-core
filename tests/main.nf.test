@@ -528,6 +528,7 @@ nextflow_workflow {
                     input_cycle = "$projectDir/assets/samplesheet_1_row_sample_cycle.csv"
                     marker_sheet = "$projectDir/assets/markers_1.csv"
                     segmentation = "cellpose"
+                    backsub = False
                 }
                 workflow {
                     """
