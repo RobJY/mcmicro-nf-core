@@ -10,6 +10,7 @@ nextflow_workflow {
             params {
                 input_sample = "$projectDir/assets/samplesheet-test.csv"
                 marker_sheet = "$projectDir/assets/markers-test.csv"
+                segmentation = "mesmer"
             }
             workflow {
                 """
