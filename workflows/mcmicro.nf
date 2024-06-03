@@ -125,19 +125,15 @@ workflow MCMICRO {
 
     // Run Segmentation
     if (params.segmentation == "mesmer") {
-        // DEEPCELL_MESMER(ASHLAR.out.tif, [[:],[]])
         DEEPCELL_MESMER(ch_segmentation_input, [[:],[]])
         ch_versions = ch_versions.mix(DEEPCELL_MESMER.out.versions)
-        //mcquant_in = ASHLAR.out.tif.join(DEEPCELL_MESMER.out.mask).multiMap { it ->
         mcquant_in = ch_segmentation_input.join(DEEPCELL_MESMER.out.mask).multiMap { it ->
             image: [it[0], it[1]]
             mask: [it[0], it[2]]
         }
     } else if (params.segmentation = "cellpose") {
-        //CELLPOSE( ASHLAR.out.tif, [] )
         CELLPOSE( ch_segmentation_input, [] )
         ch_versions = ch_versions.mix(CELLPOSE.out.versions)
-        //mcquant_in = ASHLAR.out.tif.join(CELLPOSE.out.mask).multiMap { it ->
         mcquant_in = ch_segmentation_input.join(CELLPOSE.out.mask).multiMap { it ->
             image: [it[0], it[1]]
             mask: [it[0], it[2]]
