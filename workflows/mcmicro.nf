@@ -7,18 +7,20 @@
 import groovy.io.FileType
 import nextflow.Nextflow
 
-include { paramsSummaryMap       } from 'plugin/nf-validation'
-include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_mcmicro_pipeline'
-include { MULTIQC                } from '../modules/nf-core/multiqc/main'
-include { BASICPY                } from '../modules/nf-core/basicpy/main'
-include { ASHLAR                 } from '../modules/nf-core/ashlar/main'
-include { BACKSUB                } from '../modules/nf-core/backsub/main'
-include { CELLPOSE               } from '../modules/nf-core/cellpose/main'
-include { DEEPCELL_MESMER        } from '../modules/nf-core/deepcell/mesmer/main'
-include { MCQUANT                } from '../modules/nf-core/mcquant/main'
-include { SCIMAP_MCMICRO         } from '../modules/nf-core/scimap/mcmicro/main'
+include { paramsSummaryMap                          } from 'plugin/nf-validation'
+include { paramsSummaryMultiqc                      } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML                    } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText                    } from '../subworkflows/local/utils_nfcore_mcmicro_pipeline'
+include { MULTIQC                                   } from '../modules/nf-core/multiqc/main'
+include { BASICPY                                   } from '../modules/nf-core/basicpy/main'
+include { ASHLAR                                    } from '../modules/nf-core/ashlar/main'
+include { BACKSUB                                   } from '../modules/nf-core/backsub/main'
+include { CELLPOSE                                  } from '../modules/nf-core/cellpose/main'
+include { DEEPCELL_MESMER                           } from '../modules/nf-core/deepcell/mesmer/main'
+include { MCQUANT as MCQUANT_MESMER                 } from '../modules/nf-core/mcquant/main'
+include { MCQUANT as MCQUANT_CELLPOSE               } from '../modules/nf-core/mcquant/main'
+include { SCIMAP_MCMICRO as SCIMAP_MCMICRO_MESMER   } from '../modules/nf-core/scimap/mcmicro/main'
+include { SCIMAP_MCMICRO as SCIMAP_MCMICRO_CELLPOSE } from '../modules/nf-core/scimap/mcmicro/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -124,33 +126,54 @@ workflow MCMICRO {
     }
 
     // Run Segmentation
-    if (params.segmentation == "mesmer") {
+    params.segmentation_list = params.segmentation.split(',') as List
+    if ("mesmer" in params.segmentation_list) {
         DEEPCELL_MESMER(ch_segmentation_input, [[:],[]])
         ch_versions = ch_versions.mix(DEEPCELL_MESMER.out.versions)
         mcquant_in = ch_segmentation_input.join(DEEPCELL_MESMER.out.mask).multiMap { it ->
             image: [it[0], it[1]]
             mask: [it[0], it[2]]
         }
-    } else if (params.segmentation = "cellpose") {
+        // Run Quantification
+        MCQUANT_MESMER(mcquant_in.image,
+            mcquant_in.mask,
+            [[:], file(params.marker_sheet)])
+        ch_versions = ch_versions.mix(MCQUANT_MESMER.out.versions)
+        // Run Reporting
+        SCIMAP_MCMICRO_MESMER(MCQUANT_MESMER.out.csv)
+        ch_versions = ch_versions.mix(SCIMAP_MCMICRO_MESMER.out.versions)
+    }
+    if ("cellpose" in params.segmentation_list) {
         CELLPOSE( ch_segmentation_input, [] )
         ch_versions = ch_versions.mix(CELLPOSE.out.versions)
         mcquant_in = ch_segmentation_input.join(CELLPOSE.out.mask).multiMap { it ->
             image: [it[0], it[1]]
             mask: [it[0], it[2]]
         }
-    } else if (params.segmentation = "unmicst"){
-        error("apologies, unmicst not supported yet")
+        // Run Quantification
+        MCQUANT_CELLPOSE(mcquant_in.image,
+            mcquant_in.mask,
+            [[:], file(params.marker_sheet)])
+        ch_versions = ch_versions.mix(MCQUANT_CELLPOSE.out.versions)
+        // Run Reporting
+        SCIMAP_MCMICRO_CELLPOSE(MCQUANT_CELLPOSE.out.csv)
+        ch_versions = ch_versions.mix(SCIMAP_MCMICRO_CELLPOSE.out.versions)
     }
 
-    // Run Quantification
+
+
+    /*
     MCQUANT(mcquant_in.image,
             mcquant_in.mask,
             [[:], file(params.marker_sheet)])
     ch_versions = ch_versions.mix(MCQUANT.out.versions)
+    */
 
     // Run Reporting
+    /*
     SCIMAP_MCMICRO(MCQUANT.out.csv)
     ch_versions = ch_versions.mix(SCIMAP_MCMICRO.out.versions)
+    */
 
     //
     // Collate and save software versions
