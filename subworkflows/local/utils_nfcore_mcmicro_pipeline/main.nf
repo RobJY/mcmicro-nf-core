@@ -168,10 +168,19 @@ workflow PIPELINE_COMPLETION {
 //
 def validateInputParameters() {
 
+    valid_segmentation = ['mesmer', 'cellpose']
+
     if (params.input_sample && params.input_cycle) {
         error "You must specify EITHER input_sample OR input_cycle, but not both."
     } else if(!params.input_sample && !params.input_cycle) {
         error "You must specify either input_sample or input_cycle."
+    }
+
+    def segmentation_list = params.segmentation.split(',') as List
+    segmentation_list.each {
+        if (!valid_segmentation.contains(it)) {
+            error "Valid segmentation options are: $valid_segmentation. $it is not supported."
+        }
     }
 }
 
