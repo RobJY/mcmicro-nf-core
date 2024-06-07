@@ -144,8 +144,10 @@ workflow MCMICRO {
         ch_versions = ch_versions.mix(SCIMAP_MCMICRO_MESMER.out.versions)
     }
     if ("cellpose" in params.segmentation_list) {
-        // CELLPOSE( ch_segmentation_input, [] )
-        CELLPOSE( ch_segmentation_input, '/home/pollen/HITS/cellpose/models/nucleitorch_0' )
+        if (!params.cellpose_model) {
+            params.cellpose_model = []
+        }
+        CELLPOSE( ch_segmentation_input, params.cellpose_model )
         ch_versions = ch_versions.mix(CELLPOSE.out.versions)
         mcquant_in = ch_segmentation_input.join(CELLPOSE.out.mask).multiMap { it ->
             image: [it[0], it[1]]

@@ -538,6 +538,18 @@
         },
         "timestamp": "2024-04-22T16:00:55.775911164"
     },
+    "cycle: no illumination correction, cellpose segmentation with pretrained model": {
+        "content": [
+            "TEST1.ome.tif:md5,ae98ac74e3c818bb26c99ba4b9c2dd51",
+            "TEST1.ome_cp_masks.tif:md5,c5384f8c52ea8d22b3d2ba524cdfb00b",
+            "TEST1_TEST1.csv:rounded:md5,846e3b184a78328ca0614d26d78e0243"
+        ],
+        "meta": {
+            "nf-test": "0.8.4",
+            "nextflow": "23.10.1"
+        },
+        "timestamp": "2024-06-07T14:51:02.739437714"
+    },
     "sample: manual illumination correction": {
         "content": [
             "TEST1.ome.tif:md5,ae98ac74e3c818bb26c99ba4b9c2dd51",
