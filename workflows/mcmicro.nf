@@ -16,6 +16,7 @@ include { BASICPY                                   } from '../modules/nf-core/b
 include { ASHLAR                                    } from '../modules/nf-core/ashlar/main'
 include { BACKSUB                                   } from '../modules/nf-core/backsub/main'
 include { CELLPOSE                                  } from '../modules/nf-core/cellpose/main'
+include { COREOGRAPH                                } from '../modules/nf-core/coreograph/main'
 include { DEEPCELL_MESMER                           } from '../modules/nf-core/deepcell/mesmer/main'
 include { MCQUANT as MCQUANT_MESMER                 } from '../modules/nf-core/mcquant/main'
 include { MCQUANT as MCQUANT_CELLPOSE               } from '../modules/nf-core/mcquant/main'
@@ -123,6 +124,14 @@ workflow MCMICRO {
         ch_versions = ch_versions.mix(BACKSUB.out.versions)
     } else {
         ch_segmentation_input = ASHLAR.out.tif
+    }
+
+    // Run Coreograph
+    if (params.coreograph) {
+        COREOGRAPH(ch_segmentation_input)
+        COREOGRAPH.out.cores
+            .transpose()
+            .set {ch_segmentation_input}
     }
 
     // Run Segmentation

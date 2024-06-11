@@ -79,7 +79,12 @@
                     "format": "file-path",
                     "exists": true,
                     "description": "optional model file for cellpose segmentation"
+                },
+                "coreograph": {
+                    "type": "boolean",
+                    "description": "Apply coreograph module to create separate images before segmentation"
                 }
+
             }
         },
         "institutional_config_options": {
