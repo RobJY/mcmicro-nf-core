@@ -177,6 +177,11 @@ def validateInputParameters() {
     }
 
     def segmentation_list = params.segmentation.split(',') as List
+
+    if (params.cellpose_model && !segmentation_list.contains('cellpose')) {
+        error "You can only provide a cellpose model is you have selected cellpose as one of your segmentation methods"
+    }
+
     segmentation_list.each {
         if (!valid_segmentation.contains(it)) {
             error "Valid segmentation options are: $valid_segmentation. $it is not supported."
