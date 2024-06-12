@@ -3,7 +3,7 @@ process MCQUANT {
     label 'process_single'
 
     // WARN: Version information not provided by tool on CLI. Please update version string below when bumping container versions.
-    container "docker.io/labsyspharm/quantification:1.5.4"
+    container "docker.io/labsyspharm/quantification:1.6.0"
 
     input:
     tuple val(meta), path(image)
@@ -20,9 +20,9 @@ process MCQUANT {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def VERSION = '1.5.4' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
+    def VERSION = '1.6.0' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
     """
-    python /app/CommandSingleCellExtraction.py \
+    mcquant \
         --masks $mask \
         --image $image \
         --channel_names $markerfile \
@@ -37,7 +37,7 @@ process MCQUANT {
 
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def VERSION = '1.5.4'
+    def VERSION = '1.6.0'
     """
     touch ${prefix}.csv
 
