@@ -1,0 +1,3 @@
+nextflow run main.nf --input_cycle assets/samplesheet_workshop_1.csv --segmentation mesmer --outdir ./output --marker_sheet assets/markers_workshop_1.csv -profile docker
+
+nextflow run main.nf --input_cycle assets/samplesheet_workshop_2.csv --tma_dearray --pixel_size 0.6499999761581421 --segmentation mesmer,cellpose --outdir ./output --marker_sheet assets/markers_workshop_2.csv -profile docker
