@@ -1,4 +1,4 @@
 sample,cycle_number,channel_count,image_tiles
-TEST1,3,4,/home/pollen/github/mcmicro-nf-core/assets/exemplar-002-cycle-03.ome.tiff
-TEST1,4,4,/home/pollen/github/mcmicro-nf-core/assets/exemplar-002-cycle-04.ome.tiff
-TEST1,5,4,/home/pollen/github/mcmicro-nf-core/assets/exemplar-002-cycle-05.ome.tiff
+TEST1,3,4,/workspace/mcmicro-nf-core/assets/exemplar-002-cycle-03.ome.tiff
+TEST1,4,4,/workspace/mcmicro-nf-core/assets/exemplar-002-cycle-04.ome.tiff
+TEST1,5,4,/workspace/mcmicro-nf-core/assets/exemplar-002-cycle-05.ome.tiff
