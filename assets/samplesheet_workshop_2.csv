@@ -1,0 +1,4 @@
+sample,cycle_number,channel_count,image_tiles
+TEST1,1,4,/workspace/mcmicro-nf-core/assets/exemplar-002-cycle-03.ome.tiff
+TEST2,1,4,/workspace/mcmicro-nf-core/assets/exemplar-002-cycle-04.ome.tiff
+TEST3,1,4,/workspace/mcmicro-nf-core/assets/exemplar-002-cycle-05.ome.tiff
