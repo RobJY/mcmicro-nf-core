@@ -134,11 +134,9 @@ workflow MCMICRO {
 
     ch_versions = ch_versions.mix(MCQUANT.out.versions)
 
-    /*
     // // Run Reporting
     SCIMAP_MCMICRO(MCQUANT.out.csv)
     ch_versions = ch_versions.mix(SCIMAP_MCMICRO.out.versions)
-    */
 
     //
     // Collate and save software versions
