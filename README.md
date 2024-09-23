@@ -30,13 +30,10 @@ The nf-core/mcmicro pipeline is an end-to-end processing pipeline that transform
 
 ![nf-core/mcmicro metro diagram](assets/mcmicro_metro.png)
 
-1. Registration
-  - [Ashlar](https://nf-co.re/modules/ashlar/)
-2. Segmentation
-  - [Cellpose](https://nf-co.re/modules/cellpose/)
-  - [Mesmer](https://nf-co.re/modules/deepcell_mesmer/)
-3. Quantification
-  - [MCQuant](https://nf-co.re/modules/mcquant/)
+`multiple choice` in the name MCMICRO refers to the fact that there will be multiple module options available for each step in the pipeline.  The currently supported options are provided in parentheses.
+1. Registration ([Ashlar](https://nf-co.re/modules/ashlar/))
+2. Segmentation ([Cellpose](https://nf-co.re/modules/cellpose/), [Mesmer](https://nf-co.re/modules/deepcell_mesmer/))
+3. Quantification ([MCQuant](https://nf-co.re/modules/mcquant/))
 
 ## Usage
 
@@ -87,7 +84,7 @@ For more details and further functionality, please refer to the [usage documenta
 
 To see the results of an example test run with a full size dataset refer to the [results](https://nf-co.re/mcmicro/results) tab on the nf-core website pipeline page.
 For more details about the output files and reports, please refer to the
-[output documentation](https://nf-co.re/mcmicro/output). -->
+[output documentation](https://nf-co.re/mcmicro/output).
 
 ## Credits
 
