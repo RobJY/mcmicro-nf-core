@@ -38,13 +38,13 @@ TEST1,3,10,/path/to/image/cycif-tonsil-cycle3.ome.tif
 | `sample`        | Custom sample name.                                                         |
 | `cycle_number`  | Integer giving the cycle for the file in the current row.                   |
 | `channel_count` | Integer giving the total number of channels in the file in the current row. |
-| `image_tiles`   | Full path to the input image file.                                          |
+| `image_tiles`   | Full path or URL to the input image file.                                   |
 
 An [example one row per sample per cycle samplesheet](../assets/samplesheet_1_row_sample_cycle.csv) has been provided with the pipeline.
 
 ### Samplesheet with one row per sample
 
-All per-cycle image files in the `image_directory` for a given sample will be run in a single run of Ashlar. If illumination correction is requested using Basicpy each cycle will be corrected separately.
+This is similar to the above case except each row just contains a column for each `sample` name and a columnn containing a directory where all the files for a given sample are located.  All per-cycle image files in the `image_directory` for a given sample will be run in a single run of Ashlar. If illumination correction is requested using Basicpy each cycle will be corrected separately.
 
 ```csv title="samplesheet_sample.csv"
 sample,image_directory
@@ -60,7 +60,7 @@ An [example one row per sample samplesheet](../assets/samplesheet_1_row_sample.c
 
 ## Running the pipeline
 
-# One row per sample per cycle
+### One row per sample per cycle
 
 The typical command for running the one row per sample per cycle pipeline is as follows:
 
@@ -68,7 +68,7 @@ The typical command for running the one row per sample per cycle pipeline is as 
 nextflow run nf-core/mcmicro --input_cycle ./samplesheet_cycle.csv --outdir ./results --marker_sheet markers.csv -profile docker
 ```
 
-# One row per sample
+### One row per sample
 
 The typical command for running the one row per sample pipeline is as follows:
 
@@ -104,10 +104,9 @@ nextflow run nf-core/mcmicro -profile docker -params-file params.yaml
 with `params.yaml` containing:
 
 ```yaml
-input: './samplesheet.csv'
-outdir: './results/'
-genome: 'GRCh37'
-<...>
+input_cycle: 'samplesheet_cycle.csv'
+outdir: './output'
+marker_sheet: 'markers.csv'
 ```
 
 You can also generate such `YAML`/`JSON` files via [nf-core/launch](https://nf-co.re/launch).
