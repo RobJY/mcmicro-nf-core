@@ -61,10 +61,19 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 ├── scimap
 │   ├── {sample_name}_mask_{sample_name}.h5ad
 │   └── {sample_name}_mask_{sample_name}.h5ad.csv
-└── segmentation
-    └── deepcell_mesmer
-        ├── mask_{sample_name}.tif
-        └── versions.yml
+├── segmentation
+|   ├── cellpose
+|   │   ├── {sample_name}.ome_cp_masks.tif
+|   │   └── {sample_name}.ome_cp_masks.tif
+│   └── deepcell_mesmer
+│       └── mask_{sample_name}.tif
+└── tma_dearray
+    ├── {image_count}.tif
+    ├── centroidsY-X.txt
+    ├── masks
+    │   └── {image_count}_mask.tif
+    └── TMA_MAP.tif
+
 ```
 
 
