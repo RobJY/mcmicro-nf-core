@@ -24,7 +24,7 @@ You will need to create a samplesheet with information about the samples you wou
 
 ### Samplesheet with one row per sample per cycle
 
-The `sample` identifier must be the same for multiple cycles of the same sample. All the files from the same sample will be run in a single run of ashlar in the cycle order that they appear in the samplesheet. If illumination correction is requested using basicpy each cycle will be corrected separately.
+The `sample` identifier must be the same for multiple cycles of the same sample. All the files from the same sample will be run in a single run of ashlar in the cycle order that they appear in the samplesheet. If illumination correction is requested using basicpy, each cycle will be corrected separately.
 
 ```csv title="samplesheet_cycle.csv"
 sample,cycle_number,channel_count,image_tiles
@@ -44,7 +44,7 @@ An [example one row per sample per cycle samplesheet](../assets/samplesheet_1_ro
 
 ### Samplesheet with one row per sample
 
-This is similar to the above case except each row just contains a column for each `sample` name and a columnn containing a directory where all the files for a given sample are located.  All per-cycle image files in the `image_directory` for a given sample will be run in a single run of ashlar. If illumination correction is requested using basicpy each cycle will be corrected separately.
+This is similar to the above case except each row just contains a column for each `sample` name and a columnn containing a directory where all the files for a given sample are located.  All per-cycle image files in the `image_directory` for a given sample will be run in a single run of ashlar. If illumination correction is requested using basicpy, each cycle will be corrected separately.
 
 ```csv title="samplesheet_sample.csv"
 sample,image_directory
@@ -76,7 +76,9 @@ channel_number,cycle_number,marker_name
 | `cycle_number`    | Integer identifier for the image cycle.              |
 | `marker_name`     | Name of the marker for the given channel and cycle.  |
 
-**NOTE:** `cycle_number` must match the `cycle_number` in the supplied samplesheet.
+:::note
+`cycle_number` must match the `cycle_number` in the supplied samplesheet.
+:::
 
  ### optional markersheet columns
 
