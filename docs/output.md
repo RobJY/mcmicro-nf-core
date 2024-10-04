@@ -13,19 +13,19 @@ The directories listed below will be created in the results directory after the 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
 - [Directory Structure](#directory-structure)
-- [Illumination Correction](#preregistration-correction)
-  - [BaSiCPy] (#basicpy)
+- [Illumination Correction](#illumination-correction)
+  - [BaSiCPy](#basicpy)
 - [Registration](#registration)
-  - [ashlar] (#ashlar)
+  - [ASHLAR](#ashlar)
 - [Background Subtraction](#background-subtraction)
-  - [backsub](#backsub)
+  - [Backsub](#backsub)
 - [TMI Core Separation](#tmi-core-separation)
-  - [coreograph](#coreograph)
+  - [Coreograph](#coreograph)
 - [Segmentation](#segmentation)
-  - [mesmer](#mesmer)
-  - [cellpose](#cellpose)
+  - [Mesmer](#mesmer)
+  - [Cellpose](#cellpose)
 - [Quantification](#quantification)
-  - [multiqc](#multiqc)
+  - [MultiQC](#multiqc)
 - [Pipeline information](#pipeline-information)
 
 ### Directory Structure
@@ -58,8 +58,10 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 <details>
 <summary>Output files</summary>
-- {sample_name}.ome-dfp.{tiff,tif}  : Tiff fields for dark field illumination correction
-- {sample_name}.ome-ffp.{tiff,tif}  : Tiff fields for flat field illumination correction
+
+- {sample_name}.ome-dfp.{tiff,tif} : Tiff fields for dark field illumination correction
+- {sample_name}.ome-ffp.{tiff,tif} : Tiff fields for flat field illumination correction
+
 </details>
 
 ### Registration
@@ -69,7 +71,9 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 <details>
 <summary>Output files</summary>
-- {sample_name}.ome.{tiff,tif}  : A pyramidal, tiled OME-TIFF file created from input images.
+
+- {sample_name}.ome.{tiff,tif} : A pyramidal, tiled OME-TIFF file created from input images.
+
 </details>
 
 ### Background Subtraction
@@ -79,8 +83,10 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 <details>
 <summary>Output files</summary>
-- markers_bs.csv                        : Marker file adjusted to match the background corrected image
-- {sample_name}.backsub.ome.{tiff,tif}  : Background corrected pyramidal ome.tif
+
+- markers_bs.csv : Marker file adjusted to match the background corrected image
+- {sample_name}.backsub.ome.{tiff,tif} : Background corrected pyramidal ome.tif
+
 </details>
 
 ### TMI Core Separation
@@ -90,10 +96,12 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 <details>
 <summary>Output files</summary>
-- *[0-9]*.tif                   : Complete/Incomplete tissue cores
-- centroidsY-X.txt              : A text file listing centroids of each core in format Y, X
-- masks/{image_count}_mask.tif  : Binary masks for the Complete/Incomplete tissue cores
-- TMA_MAP.tif                   : A TMA map showing labels and outlines
+
+- *[0-9]*.tif : Complete/Incomplete tissue cores
+- centroidsY-X.txt : A text file listing centroids of each core in format Y, X
+- masks/{image_count}_mask.tif : Binary masks for the Complete/Incomplete tissue cores
+- TMA_MAP.tif : A TMA map showing labels and outlines
+
 </details>
 
 ### Segmentation
@@ -103,7 +111,9 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 <details>
 <summary>Output files</summary>
-- {sample_name}.ome_cp_masks.tif  : labelled mask output from cellpose in tif format
+
+- {sample_name}.ome_cp_masks.tif : labelled mask output from cellpose in tif format
+
 </details>
 
 #### Mesmer
@@ -111,7 +121,9 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 <details>
 <summary>Output files</summary>
-- mask_{sample_name}.tif  : File containing the mask.
+
+- mask_{sample_name}.tif : File containing the mask.
+
 </details>
 
 ### Quantification
@@ -122,7 +134,9 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 <details>
 <summary>Output files</summary>
-- {sample_name}_mask_{sample_name}.csv  : Quantified regionprops_table
+
+- {sample_name}_mask_{sample_name}.csv : Quantified regionprops_table
+
 </details>
 
 ### Quality Control
