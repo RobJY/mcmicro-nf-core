@@ -13,69 +13,136 @@ The directories listed below will be created in the results directory after the 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
 - [Directory Structure](#directory-structure)
-- [Preregistration Correction](#preregistration-correction)
+- [Illumination Correction](#preregistration-correction)
+  - [BaSiCPy] (#basicpy)
 - [Registration](#registration)
+  - [ashlar] (#ashlar)
 - [Background Subtraction](#background-subtraction)
+  - [backsub](#backsub)
 - [TMI Core Separation](#tmi-core-separation)
+  - [coreograph](#coreograph)
 - [Segmentation](#segmentation)
+  - [mesmer](#mesmer)
+  - [cellpose](#cellpose)
 - [Quantification](#quantification)
-- [FastQC](#fastqc)
-- [MultiQC](#multiqc)
+  - [multiqc](#multiqc)
 - [Pipeline information](#pipeline-information)
 
 ### Directory Structure
 ```
 {outdir}
 ├── backsub
-│   ├── markers_bs.csv
-│   └── {sample_name}.backsub.ome.tif
 ├── illumination_correction
 │   └── basicpy
-│       ├── {sample_name}.ome-dfp.tiff
-│       └── {sample_name}.ome-ffp.tiff
 ├── multiqc
 │   ├── multiqc_data
-│   │   ├── multiqc_citations.txt
-│   │   ├── multiqc_data.json
-│   │   ├── multiqc.log
-│   │   ├── multiqc_software_versions.txt
-│   │   └── multiqc_sources.txt
 │   ├── multiqc_plots
 │   └── multiqc_report.html
 ├── pipeline_info
-│   ├── execution_report_{timestamp}.html
-│   ├── execution_timeline_{timestamp}.html
-│   ├── execution_trace_{timestamp}.txt
-│   ├── nf_core_pipeline_software_mqc_versions.yml
-│   ├── params_{timestamp}.json
-│   └── pipeline_dag_{timestamp}.html
 ├── quantification
 │   └── mcquant
-│       └── mesmer
-│           ├── {sample_name}_mask_{sample_name}.csv
-│           └── versions.yml
+│       └── {segmentation module}
 ├── registration
 │   └── ashlar
-│       ├── {sample_name}.ome.tif
-│       └── versions.yml
-├── scimap
-│   ├── {sample_name}_mask_{sample_name}.h5ad
-│   └── {sample_name}_mask_{sample_name}.h5ad.csv
 ├── segmentation
-|   ├── cellpose
-|   │   ├── {sample_name}.ome_cp_masks.tif
-|   │   └── {sample_name}.ome_cp_masks.tif
-│   └── deepcell_mesmer
-│       └── mask_{sample_name}.tif
+│   └── {segmentation module}
 └── tma_dearray
-    ├── {image_count}.tif
-    ├── centroidsY-X.txt
-    ├── masks
-    │   └── {image_count}_mask.tif
-    └── TMA_MAP.tif
+    └── masks
 
 ```
 
+### Illumination Correction
+
+#### BaSiCPy
+[BaSiCPy](https://nf-co.re/modules/basicpy/) is a python package for background and shading correction of optical microscopy images. It is developed based on the Matlab version of BaSiC tool with major improvements in the algorithm.
+
+<details>
+<summary>Output files</summary>
+- {sample_name}.ome-dfp.{tiff,tif}  : Tiff fields for dark field illumination correction
+- {sample_name}.ome-ffp.{tiff,tif}  : Tiff fields for flat field illumination correction
+</details>
+
+### Registration
+
+#### ASHLAR
+[ASHLAR](https://nf-co.re/modules/ashlar/) combines multi-tile microscopy images into a high-dimensional mosaic image.
+
+<details>
+<summary>Output files</summary>
+- {sample_name}.ome.{tiff,tif}  : A pyramidal, tiled OME-TIFF file created from input images.
+</details>
+
+### Background Subtraction
+
+#### Backsub
+[Backsub](https://nf-co.re/modules/backsub/) performs a pixel-by-pixel channel subtraction scaled by exposure times of pre-stitched tif images.
+
+<details>
+<summary>Output files</summary>
+- markers_bs.csv                        : Marker file adjusted to match the background corrected image
+- {sample_name}.backsub.ome.{tiff,tif}  : Background corrected pyramidal ome.tif
+</details>
+
+### TMI Core Separation
+
+#### Coreograph
+[Coreograph](https://nf-co.re/modules/coreograph/) uses UNet, a deep learning model, to identify complete/incomplete tissue cores on a tissue microarray. It has been trained on 9 TMA slides of different sizes and tissue types.
+
+<details>
+<summary>Output files</summary>
+- *[0-9]*.tif                   : Complete/Incomplete tissue cores
+- centroidsY-X.txt              : A text file listing centroids of each core in format Y, X
+- masks/{image_count}_mask.tif  : Binary masks for the Complete/Incomplete tissue cores
+- TMA_MAP.tif                   : A TMA map showing labels and outlines
+</details>
+
+### Segmentation
+
+#### Cellpose
+[Cellpose](https://nf-co.re/modules/cellpose/) segments cells in images
+
+<details>
+<summary>Output files</summary>
+- {sample_name}.ome_cp_masks.tif  : labelled mask output from cellpose in tif format
+</details>
+
+#### Mesmer
+[Mesmer](https://nf-co.re/modules/deepcell_mesmer/) segmentation for whole-cell
+
+<details>
+<summary>Output files</summary>
+- mask_{sample_name}.tif  : File containing the mask.
+</details>
+
+### Quantification
+
+#### Mcquant
+
+[Mcquant](https://nf-co.re/modules/mcquant/) extracts single-cell data given a multi-channel image and a segmentation mask.
+
+<details>
+<summary>Output files</summary>
+- {sample_name}_mask_{sample_name}.csv  : Quantified regionprops_table
+</details>
+
+### Quality Control
+
+#### MultiQC
+Aggregate report describing results and QC from the whole pipeline
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `multiqc/`
+  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
+  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
+  - `multiqc_plots/`: directory containing static images from the report in various formats.
+
+</details>
+
+[MultiQC](http://multiqc.info) is a visualization tool that generates a single HTML report summarising all samples in your project. Most of the pipeline QC results are visualised in the report and further statistics are available in the report data directory.
+
+Results generated by MultiQC collate pipeline QC from supported tools e.g. FastQC. The pipeline has special steps which also allow the software versions to be reported in the MultiQC output for future traceability. For more information about how to use MultiQC reports, see <http://multiqc.info>.
 
 ### Pipeline information
 Report metrics generated during the workflow execution
@@ -94,7 +161,7 @@ Report metrics generated during the workflow execution
 [Nextflow](https://www.nextflow.io/docs/latest/tracing.html) provides excellent functionality for generating various reports relevant to the running and execution of the pipeline. This will allow you to troubleshoot errors with the running of the pipeline, and also provide you with other information such as launch commands, run times and resource usage.
 
 
-<!-- Not currently using FastQC or MultiQC, so commenting these out
+<!-- Not currently using FastQC so commenting out for now
 ### FastQC
  Raw read QC
 <details markdown="1">
@@ -117,20 +184,4 @@ Report metrics generated during the workflow execution
 :::note
 The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They may contain adapter sequence and potentially regions with low quality.
 :::
-
-### MultiQC
-Aggregate report describing results and QC from the whole pipeline
-<details markdown="1">
-<summary>Output files</summary>
-
-- `multiqc/`
-  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
-  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
-  - `multiqc_plots/`: directory containing static images from the report in various formats.
-
-</details>
-
-[MultiQC](http://multiqc.info) is a visualization tool that generates a single HTML report summarising all samples in your project. Most of the pipeline QC results are visualised in the report and further statistics are available in the report data directory.
-
-Results generated by MultiQC collate pipeline QC from supported tools e.g. FastQC. The pipeline has special steps which also allow the software versions to be reported in the MultiQC output for future traceability. For more information about how to use MultiQC reports, see <http://multiqc.info>.
 -->
