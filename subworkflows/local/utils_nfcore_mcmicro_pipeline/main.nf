@@ -85,7 +85,6 @@ workflow PIPELINE_INITIALISATION {
     // Create channel from input file provided through params.input_cycle or .input_sample
     //
     if (input_cycle) {
-        // TODO: Validate that cycle_number is 1..N, in order, for all samples.
         ch_samplesheet = Channel.fromSamplesheet('input_cycle')
             .map{
                 sample, cycle_number, channel_count, image_tiles, dfp, ffp ->
@@ -255,11 +254,18 @@ def expandSampleRow( row ) {
 // Generate methods description for MultiQC
 //
 def toolCitationText() {
-    // TODO nf-core: Optionally add in-text citation tools to this list.
     // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "Tool (Foo et al. 2023)" : "",
     // Uncomment function in methodsDescriptionText to render in MultiQC report
+    // TODO: not sure of the correct syntax for the ternary operators below.
+    //       Is this ok or does it need to be enclosed in curly braces to make them closures?
+    //       I don't see examples in sarek, rnaseq or other pipelines
     def citation_text = [
             "Tools used in the workflow included:",
+            params["illumination"] ? "Basicpy (Peng et al. 2017)," : "",
+            "Ashlar (Muhlich et al. 2022),",
+            params["segmentation"].contains("cellpose") ? "Cellpose (Stringer et al. 2021)," : "",
+            params["segmentation"].contains("mesmer") ? "Mesmer (Van Valen et al. 2016)," : "",
+            "MCQuant,",
             "FastQC (Andrews 2010),",
             "MultiQC (Ewels et al. 2016)",
             "."
@@ -269,10 +275,14 @@ def toolCitationText() {
 }
 
 def toolBibliographyText() {
-    // TODO nf-core: Optionally add bibliographic entries to this list.
     // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "<li>Author (2023) Pub name, Journal, DOI</li>" : "",
     // Uncomment function in methodsDescriptionText to render in MultiQC report
     def reference_text = [
+            params["illumination"] ? "<li>Peng, T., Thorn, K., Schroeder, T., Wang, L., Theis, F.J., Marr*, C., Navab*, N. (2017). A BaSiC Tool for Background and Shading Correction of Optical Microscopy Images Nature Communication 8(14836). doi: 10.1038/ncomms14836</li>" : "",
+            "<li>Muhlich, J.L., Chen, Y., Yapp, C., Russell, D., Santagata, S., Sorger, P.K. (2022) Stitching and registering highly multiplexed whole-slide images of tissues and tumors using ASHLAR, Bioinformatics 38(19), 4613–4621. doi: 10.1093/bioinformatics/btac544</li>",
+            params["segmentation"].contains("cellpose") ? "<li>Stringer, C., Wang, T., Michaelos, M., & Pachitariu, M. (2021). Cellpose: a generalist algorithm for cellular segmentation. Nature methods, 18(1), 100-106.</li>" : "",
+            params["segmentation"].contains("mesmer") ? "<li>Van Valen, D.A., Kudo, T., Lane, K.M., Macklin, D.N., Quach, N.T., DeFelice, M.M., Maayan, I., Tanouchi, Y., Ashley, E.A., Covert, M.W. (2016). Deep Learning Automates the Quantitative Analysis of Individual Cells in Live-Cell Imaging Experiments. PLOS Computational Biology 12(11), doi: 10.1371/journal.pcbi.1005177.</li>" : "",
+            "<li></li>",
             "<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).</li>",
             "<li>Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics , 32(19), 3047–3048. doi: /10.1093/bioinformatics/btw354</li>"
         ].join(' ').trim()
@@ -302,9 +312,8 @@ def methodsDescriptionText( mqc_methods_yaml ) {
     meta["tool_citations"] = ""
     meta["tool_bibliography"] = ""
 
-    // TODO nf-core: Only uncomment below if logic in toolCitationText/toolBibliographyText has been filled!
-    // meta["tool_citations"] = toolCitationText().replaceAll(", \\.", ".").replaceAll("\\. \\.", ".").replaceAll(", \\.", ".")
-    // meta["tool_bibliography"] = toolBibliographyText()
+    meta["tool_citations"] = toolCitationText().replaceAll(", \\.", ".").replaceAll("\\. \\.", ".").replaceAll(", \\.", ".")
+    meta["tool_bibliography"] = toolBibliographyText()
 
 
     def methods_text = mqc_methods_yaml.text
