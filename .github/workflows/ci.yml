@@ -33,7 +33,7 @@ jobs:
         uses: adamrtalbot/detect-nf-test-changes@v0.0.4
         with:
           head: ${{ github.sha }}
-          base: ${{ github.base_ref }}
+          base: documentation
 
       - name: print list of nf-test files
         run: |
