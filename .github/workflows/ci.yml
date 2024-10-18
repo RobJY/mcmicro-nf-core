@@ -11,6 +11,8 @@ on:
 
 env:
   NXF_ANSI_LOG: false
+  # env var to force tests
+  TEST_SET: '["tests/workflows/mcmicro.nf.test", "subworkflows/local/utils_nfcore_mcmicro_pipeline/tests/initialisation.nf.test", "tests/main.nf.test"]'
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
@@ -22,7 +24,10 @@ jobs:
     name: Check for changes
     runs-on: ubuntu-latest
     outputs:
-      nf_test_files: ${{ steps.list.outputs.components }}
+      # todo: replace before deploy
+      #nf_test_files: ${{ steps.list.outputs.components }}
+      nf_test_files: ${{ env.TEST_SET }}
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -36,7 +41,8 @@ jobs:
           # TODO: check that the following works on push and pull_request
           #       it's empty for workflow_dispatch
           #base: ${{ env.GITHUB_REF }}
-          base: documentation
+          #base: documentation
+          base: backsub
 
       - name: print list of nf-test files
         run: |
