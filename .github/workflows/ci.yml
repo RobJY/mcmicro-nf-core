@@ -18,6 +18,11 @@ concurrency:
 
 jobs:
 
+  get_tag_names:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "*** ${{ env.GITHUB_REF }} ***"
+
   nf-test-changes:
     name: Check for changes
     runs-on: ubuntu-latest
@@ -33,7 +38,7 @@ jobs:
         uses: adamrtalbot/detect-nf-test-changes@v0.0.4
         with:
           head: ${{ github.sha }}
-          base: ${{ github.base_ref }}
+          base: ${{ env.GITHUB_REF }}
 
       - name: print list of nf-test files
         run: |
