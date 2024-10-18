@@ -27,6 +27,8 @@ include { SCIMAP_MCMICRO         } from '../modules/nf-core/scimap/mcmicro/main'
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+/* comment to trigger tests */
+
 workflow MCMICRO {
 
     take:
