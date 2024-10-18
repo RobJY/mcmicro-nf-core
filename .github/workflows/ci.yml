@@ -41,8 +41,7 @@ jobs:
           # TODO: check that the following works on push and pull_request
           #       it's empty for workflow_dispatch
           #base: ${{ env.GITHUB_REF }}
-          #base: documentation
-          base: backsub
+          base: documentation
 
       - name: print list of nf-test files
         run: |
