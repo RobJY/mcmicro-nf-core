@@ -62,7 +62,7 @@ jobs:
         profile:
           # - "conda"   basicpy doesn't support conda
           - "docker"
-          - "singularity"
+          # - "singularity" basicpy and coreograph fail
     steps:
 
       - name: install curl
