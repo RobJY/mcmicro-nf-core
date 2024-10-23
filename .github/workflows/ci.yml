@@ -112,11 +112,6 @@ jobs:
         with:
           version: ${{ env.NFT_VER }}
 
-#      - name: Install nf-test
-#        run: |
-#          wget -qO- https://get.nf-test.com | bash
-#          sudo mv nf-test /usr/local/bin/
-
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
