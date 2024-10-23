@@ -3,7 +3,8 @@ name: nf-core CI
 on:
   push:
     branches:
-      - dev
+      # - dev
+      - documentation
   pull_request:
   release:
     types: [published]
@@ -40,8 +41,8 @@ jobs:
           head: ${{ github.sha }}
           # TODO: check that the following works on push and pull_request
           #       it's empty for workflow_dispatch
-          #base: ${{ env.GITHUB_REF }}
-          base: documentation
+          base: ${{ env.GITHUB_REF }}
+          # base: documentation
 
       - name: print list of nf-test files
         run: |
