@@ -12,8 +12,9 @@ on:
 
 env:
   NXF_ANSI_LOG: false
+  NFT_VER: "0.9.0"
   # env var to force tests
-  # TEST_SET: '["tests/workflows/mcmicro.nf.test", "subworkflows/local/utils_nfcore_mcmicro_pipeline/tests/initialisation.nf.test", "tests/main.nf.test"]'
+  TEST_SET: '["tests/workflows/mcmicro.nf.test", "subworkflows/local/utils_nfcore_mcmicro_pipeline/tests/initialisation.nf.test", "tests/main.nf.test"]'
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
@@ -26,8 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       # todo: replace before deploy
-      nf_test_files: ${{ steps.list.outputs.components }}
-      # nf_test_files: ${{ env.TEST_SET }}
+      # nf_test_files: ${{ steps.list.outputs.components }}
+      nf_test_files: ${{ env.TEST_SET }}
 
     steps:
       - uses: actions/checkout@v4
@@ -106,15 +107,15 @@ jobs:
 #          echo $(realpath $CONDA)/condabin >> $GITHUB_PATH
 #          echo $(realpath python) >> $GITHUB_PATH
 
-#      - name: Install nf-test
-#        uses: nf-core/setup-nf-test@v1
-#        with:
-#          version: ${{ env.NFT_VER }}
-
       - name: Install nf-test
-        run: |
-          wget -qO- https://get.nf-test.com | bash
-          sudo mv nf-test /usr/local/bin/
+        uses: nf-core/setup-nf-test@v1
+        with:
+          version: ${{ env.NFT_VER }}
+
+#      - name: Install nf-test
+#        run: |
+#          wget -qO- https://get.nf-test.com | bash
+#          sudo mv nf-test /usr/local/bin/
 
       - uses: actions/setup-python@v4
         with:
