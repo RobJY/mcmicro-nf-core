@@ -36,7 +36,9 @@
                 "errorMessage": ""
             },
             "exposure": {
-                "type": "number"
+                "type": "number",
+                "minimum": 0.001,
+                "errorMessage": "Exposure time must be a positive number."
             },
             "background": {
                 "type": "string"

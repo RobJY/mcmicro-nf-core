@@ -92,27 +92,26 @@ workflow MCMICRO {
             }
             | BACKSUB
 
-        ch_segmentation_input = BACKSUB.out.backsub_tif
         ch_versions = ch_versions.mix(BACKSUB.out.versions)
+        post_registration = BACKSUB.out.backsub_tif
     } else {
-        ch_segmentation_input = ASHLAR.out.tif
+        post_registration = ASHLAR.out.tif
     }
 
     // Run Coreograph
     if (params.tma_dearray) {
-        COREOGRAPH(ASHLAR.out.tif)
+        COREOGRAPH(post_registration)
         COREOGRAPH.out.cores
             .transpose()
             .map { meta, img -> [[id: meta.id + '_' + img.fileName.toString().tokenize('.')[0]], img]}
             .set { ch_segmentation_input }
     } else {
-        ch_segmentation_input = ASHLAR.out.tif
+        ch_segmentation_input = post_registration
     }
 
     // Run Segmentation
 
     ch_masks = Channel.empty()
-
     ch_segmentation_input
         .multiMap{ meta, image ->
             img: [meta + [segmenter: 'mesmer'], image]
